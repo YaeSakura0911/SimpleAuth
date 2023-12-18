@@ -1,5 +1,7 @@
 import {createRouter, createWebHistory} from 'vue-router'
 import LoginView from "@/views/LoginView.vue";
+import ForgetView from "@/views/ForgetView.vue";
+import RegisterView from "@/views/RegisterView.vue";
 import IndexView from "@/views/IndexView.vue";
 import {useUserStore} from "@/stores/user";
 import {getUserBySession} from "@/apis/user";
@@ -17,6 +19,24 @@ const router = createRouter({
             component: LoginView,
             meta: {
                 title: '登录',
+                requireAuth: false
+            }
+        },
+        {
+            path: '/forget',
+            name: 'Forget',
+            component: ForgetView,
+            meta: {
+                title: '忘记密码',
+                requireAuth: false
+            }
+        },
+        {
+            path: '/register',
+            name: 'Register',
+            component: RegisterView,
+            meta: {
+                title: '注册',
                 requireAuth: false
             }
         },
@@ -53,10 +73,16 @@ router.beforeEach(async (to, from) => {
             })
         })
 
-        if (!user.isAuthtication) {
+        if (!user.isAuthentication) {
             return '/login'
         }
     }
+})
+
+router.afterEach((to, from) => {
+    const routeTitle = to.meta.title;
+    const originTitle = document.title;
+    document.title = routeTitle + ' | ' + originTitle
 })
 
 export default router

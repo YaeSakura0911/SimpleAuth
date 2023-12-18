@@ -1,9 +1,23 @@
 <script setup>
+import {useRouter} from "vue-router";
+import {logout} from "@/apis/basic";
+import {message} from "ant-design-vue";
 
+const router = useRouter()
+
+function handleLogout() {
+    logout().then(() => {
+        router.push('/login')
+        message.success('注销成功')
+    })
+}
 </script>
 
 <template>
     主页
+    <a-button @click="handleLogout">
+        注销
+    </a-button>
     <router-view />
 </template>
 

@@ -1,94 +1,115 @@
 <script setup>
 import {reactive, computed} from 'vue'
-import {GithubOutlined, GoogleOutlined, UserOutlined, LockOutlined} from '@ant-design/icons-vue'
+import {GithubOutlined, GoogleOutlined, UserOutlined, LockOutlined, WindowsOutlined} from '@ant-design/icons-vue'
 import {login} from "@/apis/basic";
 import {useRouter} from "vue-router";
 import {message} from "ant-design-vue";
 
 const router = useRouter()
-const formState = reactive({
+const loginForm = reactive({
     username: '',
     password: '',
     // remember: true,
 });
+
 function onFinish(values) {
     login(values).then(() => {
-        message.success('登录成功')
         router.push('/home')
+        message.success('登录成功')
     })
 }
+
 function onFinishFailed(errorInfo) {
     console.log('Failed:', errorInfo);
 }
-const disabled = computed(() => {
-    return !(formState.username && formState.password);
-});
 </script>
 
 <template>
-    <a-layout>
-        <a-card>
-            <a-form
-                :model="formState"
-                name="normal_login"
-                class="login-form"
-                @finish="onFinish"
-                @finishFailed="onFinishFailed"
-            >
-                <a-form-item label="用户名" name="username"
-                             :rules="[{ required: true, message: 'Please input your username!' }]">
-                    <a-input v-model:value="formState.username">
-                        <template #prefix>
-                            <UserOutlined class="site-form-item-icon"/>
-                        </template>
-                    </a-input>
-                </a-form-item>
+    <a-layout style="min-height: 100vh;">
+        <a-layout-content>
+            <a-row justify="center" align="middle" style="min-height: 100vh">
+                <a-col :span="5">
+                    <a-card>
+                        <a-typography-title :level="3">SimpleAuth</a-typography-title>
 
-                <a-form-item
-                    label="密码"
-                    name="password"
-                    :rules="[{ required: true, message: 'Please input your password!' }]"
-                >
-                    <a-input-password v-model:value="formState.password">
-                        <template #prefix>
-                            <LockOutlined class="site-form-item-icon"/>
-                        </template>
-                    </a-input-password>
-                </a-form-item>
+                        <br/>
 
-                <a-form-item>
-                    <a-form-item name="remember" no-style>
-                        <a-checkbox v-model:checked="formState.remember">记住我</a-checkbox>
-                    </a-form-item>
-                    <a class="login-form-forgot" href="">忘记密码</a>
-                </a-form-item>
+                        <a-form
+                            :model="loginForm"
+                            class="login-form"
+                            @finish="onFinish"
+                            @finishFailed="onFinishFailed">
+                            <a-form-item
+                                name="username"
+                                :rules="[{ required: true, message: '请输入用户名！', trigger: 'blur' }]">
+                                <a-input v-model:value="loginForm.username" placeholder="用户名">
+                                    <template #prefix>
+                                        <UserOutlined class="site-form-item-icon"/>
+                                    </template>
+                                </a-input>
+                            </a-form-item>
 
-                <a-form-item>
-                    <a-button :disabled="disabled" type="primary" html-type="submit" class="login-form-button">
-                        登录
-                    </a-button>
-                    Or
-                    <a href="">register now!</a>
-                </a-form-item>
+                            <a-form-item
+                                name="password"
+                                :rules="[{ required: true, message: '请输入密码！', trigger: 'blur' }]">
+                                <a-input-password v-model:value="loginForm.password" placeholder="密码">
+                                    <template #prefix>
+                                        <LockOutlined class="site-form-item-icon"/>
+                                    </template>
+                                </a-input-password>
+                            </a-form-item>
 
-                <GithubOutlined />
-                <GoogleOutlined />
-            </a-form>
-        </a-card>
+                            <a-form-item>
+                                <a-form-item name="remember" no-style>
+                                    <a-checkbox v-model:checked="loginForm.remember">记住我</a-checkbox>
+                                </a-form-item>
+                                <router-link class="login-form-forgot" to="/forget">忘记密码</router-link>
+                            </a-form-item>
+
+                            <a-form-item>
+                                <a-space direction="vertical" style="width: 100%">
+                                    <a-button type="primary" html-type="submit" block>
+                                        登录
+                                    </a-button>
+                                    <router-link to="/register">
+                                        <a-button block>注册</a-button>
+                                    </router-link>
+                                </a-space>
+                            </a-form-item>
+                        </a-form>
+
+                        <a-divider>
+                            <a-typography-text type="secondary">其他登录方式</a-typography-text>
+                        </a-divider>
+
+                        <a-space direction="vertical" style="width: 100%">
+                            <a-button block>
+                                <github-outlined />
+                                使用 Github 登录
+                            </a-button>
+                            <a-button block>
+                                <google-outlined />
+                                使用 Google 登录
+                            </a-button>
+                            <a-button block>
+                                <windows-outlined />
+                                使用 Microsoft 登录
+                            </a-button>
+                        </a-space>
+                    </a-card>
+                </a-col>
+            </a-row>
+        </a-layout-content>
     </a-layout>
-
 </template>
 
 <style scoped>
-#components-form-demo-normal-login .login-form {
-    max-width: 300px;
-}
-
-#components-form-demo-normal-login .login-form-forgot {
-    float: right;
-}
-
-#components-form-demo-normal-login .login-form-button {
+.login-form {
+    //max-width: 300px;
     width: 100%;
+}
+
+.login-form-forgot {
+    float: right;
 }
 </style>

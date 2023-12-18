@@ -1,9 +1,7 @@
 package org.eu.yaesakura.simpleauth.framework.config;
 
 import org.eu.yaesakura.simpleauth.framework.filter.CustomAuthenticationFilter;
-import org.eu.yaesakura.simpleauth.framework.handler.CustomAuthenticationFailureHandler;
-import org.eu.yaesakura.simpleauth.framework.handler.CustomAuthenticationSuccessHandler;
-import org.eu.yaesakura.simpleauth.framework.handler.CustomLogoutSuccessHandler;
+import org.eu.yaesakura.simpleauth.framework.handler.*;
 import org.eu.yaesakura.simpleauth.framework.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -26,6 +24,7 @@ import org.springframework.security.web.authentication.session.CompositeSessionA
 import org.springframework.security.web.authentication.session.ConcurrentSessionControlAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
@@ -38,19 +37,33 @@ import java.util.List;
  * @author YaeSakura
  */
 
-@EnableWebSecurity
+@EnableWebSecurity(debug = true)
 @EnableMethodSecurity
 @Configuration
 public class SpringSecurityConfiguration {
 
+    private final UserService userService;
+    private final CustomAccessDeniedHandler accessDeniedHandler;
+    private final CustomAuthenticationEntryPoint authenticationEntryPoint;
+    private final CustomAuthenticationSuccessHandler authenticationSuccessHandler;
+    private final CustomAuthenticationFailureHandler authenticationFailureHandler;
+    private final CustomLogoutSuccessHandler logoutSuccessHandler;
+
     @Autowired
-    private UserService userService;
-    @Autowired
-    private CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
-    @Autowired
-    private CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
-    @Autowired
-    private CustomLogoutSuccessHandler customLogoutSuccessHandler;
+    public SpringSecurityConfiguration (
+            CustomAccessDeniedHandler accessDeniedHandler,
+            CustomAuthenticationEntryPoint authenticationEntryPoint,
+            CustomAuthenticationFailureHandler authenticationFailureHandler,
+            CustomAuthenticationSuccessHandler authenticationSuccessHandler,
+            CustomLogoutSuccessHandler logoutSuccessHandler,
+            UserService userService) {
+        this.accessDeniedHandler = accessDeniedHandler;
+        this.authenticationEntryPoint = authenticationEntryPoint;
+        this.authenticationSuccessHandler = authenticationSuccessHandler;
+        this.authenticationFailureHandler = authenticationFailureHandler;
+        this.logoutSuccessHandler = logoutSuccessHandler;
+        this.userService = userService;
+    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
@@ -79,7 +92,12 @@ public class SpringSecurityConfiguration {
                     // 配置注销请求路径
                     logout.logoutUrl("/logout");
                     // 配置注销成功处理器
-                    logout.logoutSuccessHandler(customLogoutSuccessHandler);
+                    logout.logoutSuccessHandler(logoutSuccessHandler);
+                })
+                // 异常处理器
+                .exceptionHandling(exception -> {
+                    exception.accessDeniedHandler(accessDeniedHandler);
+                    exception.authenticationEntryPoint(authenticationEntryPoint);
                 })
                 // 添加自定义认证过滤器
                 .addFilterAfter(customAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
@@ -92,9 +110,10 @@ public class SpringSecurityConfiguration {
         // 配置认证管理器
         customAuthenticationFilter.setAuthenticationManager(authenticationManager());
         // 配置认证成功处理器
-        customAuthenticationFilter.setAuthenticationSuccessHandler(customAuthenticationSuccessHandler);
+        customAuthenticationFilter.setAuthenticationSuccessHandler(authenticationSuccessHandler);
         // 配置认证失败处理器
-        customAuthenticationFilter.setAuthenticationFailureHandler(customAuthenticationFailureHandler);
+        customAuthenticationFilter.setAuthenticationFailureHandler(authenticationFailureHandler);
+        customAuthenticationFilter.setSecurityContextRepository(new HttpSessionSecurityContextRepository());
         // 配置会话认证策略
         customAuthenticationFilter.setSessionAuthenticationStrategy(compositeSessionAuthenticationStrategy());
         return customAuthenticationFilter;
