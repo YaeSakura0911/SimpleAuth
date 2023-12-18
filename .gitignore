@@ -1,17 +1,7 @@
 ### IntelliJ IDEA ###
-.idea/modules.xml
-.idea/jarRepositories.xml
-.idea/compiler.xml
-.idea/libraries/
-*.iws
+.idea/
 *.iml
-*.ipr
-
-### VS Code ###
-.vscode/
-
-### Mac OS ###
-.DS_Store
 
 **/node_modules
 **/target
+**/resources/*.yml
