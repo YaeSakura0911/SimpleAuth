@@ -1,5 +1,5 @@
 <script setup>
-import {reactive, computed} from 'vue'
+import {reactive} from 'vue'
 import {GithubOutlined, GoogleOutlined, UserOutlined, LockOutlined, WindowsOutlined} from '@ant-design/icons-vue'
 import {login} from "@/apis/basic";
 import {useRouter} from "vue-router";
@@ -9,7 +9,7 @@ const router = useRouter()
 const loginForm = reactive({
     username: '',
     password: '',
-    // remember: true,
+    remember: true,
 });
 
 function onFinish(values) {

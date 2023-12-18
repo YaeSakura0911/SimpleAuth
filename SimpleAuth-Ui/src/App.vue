@@ -14,11 +14,11 @@
 
 <style scoped>
 .slide-fade-enter-active  {
-    transition: all 150ms ease-in;
+    transition: all 300ms ease-in;
 }
 
 .slide-fade-leave-active {
-    transition: all 150ms ease-out;
+    transition: all 300ms ease-out;
 }
 
 .slide-fade-enter-from {
