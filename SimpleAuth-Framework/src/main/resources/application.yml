@@ -1,6 +1,0 @@
-spring:
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    username: root
-    password: 2000GL911j..
-    url: jdbc:mysql://mysql.yaesakura.eu.org:3306/simple_auth
