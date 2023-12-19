@@ -1,5 +1,7 @@
 package org.eu.yaesakura.simpleauth.framework.config;
 
+import org.eu.yaesakura.simpleauth.framework.CustomPersistentTokenBasedRememberMeServices;
+import org.eu.yaesakura.simpleauth.framework.CustomPersistentTokenRepositoryImpl;
 import org.eu.yaesakura.simpleauth.framework.filter.CustomAuthenticationFilter;
 import org.eu.yaesakura.simpleauth.framework.handler.*;
 import org.eu.yaesakura.simpleauth.framework.service.UserService;
@@ -19,6 +21,7 @@ import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.session.CompositeSessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.ConcurrentSessionControlAuthenticationStrategy;
@@ -48,6 +51,7 @@ public class SpringSecurityConfiguration {
     private final CustomAuthenticationSuccessHandler authenticationSuccessHandler;
     private final CustomAuthenticationFailureHandler authenticationFailureHandler;
     private final CustomLogoutSuccessHandler logoutSuccessHandler;
+    private final CustomPersistentTokenRepositoryImpl tokenRepository;
 
     @Autowired
     public SpringSecurityConfiguration (
@@ -56,12 +60,14 @@ public class SpringSecurityConfiguration {
             CustomAuthenticationFailureHandler authenticationFailureHandler,
             CustomAuthenticationSuccessHandler authenticationSuccessHandler,
             CustomLogoutSuccessHandler logoutSuccessHandler,
+            CustomPersistentTokenRepositoryImpl tokenRepository,
             UserService userService) {
         this.accessDeniedHandler = accessDeniedHandler;
         this.authenticationEntryPoint = authenticationEntryPoint;
         this.authenticationSuccessHandler = authenticationSuccessHandler;
         this.authenticationFailureHandler = authenticationFailureHandler;
         this.logoutSuccessHandler = logoutSuccessHandler;
+        this.tokenRepository = tokenRepository;
         this.userService = userService;
     }
 
@@ -116,6 +122,8 @@ public class SpringSecurityConfiguration {
         customAuthenticationFilter.setSecurityContextRepository(new HttpSessionSecurityContextRepository());
         // 配置会话认证策略
         customAuthenticationFilter.setSessionAuthenticationStrategy(compositeSessionAuthenticationStrategy());
+        // 配置记住我服务
+        customAuthenticationFilter.setRememberMeServices(customPersistentTokenBasedRememberMeServices());
         return customAuthenticationFilter;
     }
 
@@ -164,6 +172,11 @@ public class SpringSecurityConfiguration {
         delegateStrategies.add(concurrentSessionControlAuthenticationStrategy());
         delegateStrategies.add(registerSessionAuthenticationStrategy());
         return new CompositeSessionAuthenticationStrategy(delegateStrategies);
+    }
+
+    @Bean
+    public RememberMeServices customPersistentTokenBasedRememberMeServices() {
+        return new CustomPersistentTokenBasedRememberMeServices("SimpleAuth", userService, tokenRepository);
     }
 
     /**

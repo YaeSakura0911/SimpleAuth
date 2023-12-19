@@ -1,6 +1,7 @@
 package org.eu.yaesakura.simpleauth.framework.mapper;
 
 import org.apache.ibatis.annotations.*;
+import org.eu.yaesakura.simpleauth.framework.domain.entity.PersistentLogin;
 
 import java.time.LocalDateTime;
 
@@ -14,7 +15,7 @@ import java.time.LocalDateTime;
 public interface PersistentLoginMapper {
 
     @Select("SELECT * FROM persistent_logins where series = #{series}")
-    void getTokenBySeries(String series);
+    PersistentLogin getTokenBySeries(String series);
 
     /**
      * 插入令牌
