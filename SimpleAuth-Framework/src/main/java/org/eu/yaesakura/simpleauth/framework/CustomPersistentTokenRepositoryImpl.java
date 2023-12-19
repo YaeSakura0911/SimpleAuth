@@ -2,20 +2,23 @@ package org.eu.yaesakura.simpleauth.framework;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import org.eu.yaesakura.simpleauth.framework.domain.entity.PersistentLogin;
 import org.eu.yaesakura.simpleauth.framework.mapper.PersistentLoginMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.web.authentication.rememberme.PersistentRememberMeToken;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
+import org.springframework.stereotype.Component;
 
 import java.time.ZoneId;
 import java.util.Date;
 
-public class CustomTokenRepositoryImpl implements PersistentTokenRepository {
+@Component
+public class CustomPersistentTokenRepositoryImpl implements PersistentTokenRepository {
 
     private final PersistentLoginMapper mapper;
 
     @Autowired
-    public CustomTokenRepositoryImpl(PersistentLoginMapper persistentLoginMapper) {
+    public CustomPersistentTokenRepositoryImpl(PersistentLoginMapper persistentLoginMapper) {
         this.mapper = persistentLoginMapper;
     }
 
