@@ -1,6 +1,10 @@
 <script setup>
-import {reactive, ref} from "vue";
+import {onBeforeMount, reactive, ref} from "vue";
+import {onBeforeRouteUpdate, useRoute, useRouter} from "vue-router";
+import {githubOAuth} from "@/apis/basic";
 
+const route = useRoute()
+const router = useRouter()
 const buttonLoading = ref(false)
 const registerFormRef = ref()
 const registerForm = reactive({
@@ -26,6 +30,7 @@ const validateRules = {
         {type: 'email', message: '请输入有效的邮箱地址。', trigger: 'blur'}
     ]
 }
+
 
 function handleFinish() {
     buttonLoading.value = true

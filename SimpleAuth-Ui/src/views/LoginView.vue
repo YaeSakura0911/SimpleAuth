@@ -1,8 +1,8 @@
 <script setup>
 import {reactive} from 'vue'
 import {GithubOutlined, GoogleOutlined, UserOutlined, LockOutlined, WindowsOutlined} from '@ant-design/icons-vue'
-import {login} from "@/apis/basic";
-import {useRouter} from "vue-router";
+import {googleOAuth, login} from "@/apis/basic";
+import {onBeforeRouteUpdate, useRouter} from "vue-router";
 import {message} from "ant-design-vue";
 
 const router = useRouter()
@@ -21,6 +21,19 @@ function onFinish(values) {
 
 function onFinishFailed(errorInfo) {
     console.log('Failed:', errorInfo);
+}
+
+function handleGithubOAuth() {
+    window.open('http://localhost:8080/login/oauth2/github','_blank', 'width=500, height=500')
+}
+function handleGoogleOAuth() {
+    // const url = 'https://accounts.google.com/o/oauth2/v2/auth'
+    // const client_id = '648723572402-842982hcrr4ln1i6gd0lk206lel4h60a.apps.googleusercontent.com'
+    // const redirect_uri = 'http://localhost:5173/register'
+    // const response_type = 'token'
+    // const scope = 'https://www.googleapis.com/auth/userinfo.email+https://www.googleapis.com/auth/userinfo.profile+openid'
+    // window.open(`${url}?client_id=${client_id}&redirect_uri=${redirect_uri}&response_type=${response_type}&scope=${scope}`, '_self')
+    window.open('http://localhost:8080/login/oauth2/google', '_blank', 'width=500, height=500')
 }
 </script>
 
@@ -83,11 +96,11 @@ function onFinishFailed(errorInfo) {
                         </a-divider>
 
                         <a-space direction="vertical" style="width: 100%">
-                            <a-button block>
+                            <a-button @click="handleGithubOAuth" block>
                                 <github-outlined />
                                 使用 Github 登录
                             </a-button>
-                            <a-button block>
+                            <a-button @click="handleGoogleOAuth" block>
                                 <google-outlined />
                                 使用 Google 登录
                             </a-button>

@@ -90,6 +90,14 @@ public class SpringSecurityConfiguration {
                 .rememberMe(rememberMe -> {
                     rememberMe.rememberMeServices(customPersistentTokenBasedRememberMeServices());
                 })
+                // OAuth2
+                .oauth2Login(oauth2 -> {
+                    oauth2.loginProcessingUrl("/login");
+                    oauth2.loginPage("/login");
+                    oauth2.authorizationEndpoint(authorization -> {
+                        authorization.baseUri("/login/oauth2");
+                    });
+                })
                 // 认证请求
                 .authorizeHttpRequests(authorize -> {
                     // 放行登录、注销接口

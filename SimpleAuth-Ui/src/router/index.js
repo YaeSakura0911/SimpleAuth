@@ -62,6 +62,8 @@ const router = createRouter({
 router.beforeEach(async (to, from) => {
     const user = useUserStore()
 
+    // TODO: to.hash可以获取到谷歌重定向过来的数据
+
     // 如果目的地需要认证
     if (to.meta.requireAuth) {
         await getUserBySession().then(data => {
