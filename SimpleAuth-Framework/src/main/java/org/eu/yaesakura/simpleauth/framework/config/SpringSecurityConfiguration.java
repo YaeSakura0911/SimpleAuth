@@ -86,6 +86,10 @@ public class SpringSecurityConfiguration {
                     urlBasedCorsConfigurationSource.registerCorsConfiguration("/**", corsConfiguration);
                     cors.configurationSource(urlBasedCorsConfigurationSource);
                 })
+                // 记住我
+                .rememberMe(rememberMe -> {
+                    rememberMe.rememberMeServices(customPersistentTokenBasedRememberMeServices());
+                })
                 // 认证请求
                 .authorizeHttpRequests(authorize -> {
                     // 放行登录、注销接口
@@ -176,7 +180,9 @@ public class SpringSecurityConfiguration {
 
     @Bean
     public RememberMeServices customPersistentTokenBasedRememberMeServices() {
-        return new CustomPersistentTokenBasedRememberMeServices("SimpleAuth", userService, tokenRepository);
+        CustomPersistentTokenBasedRememberMeServices rememberMeServices = new CustomPersistentTokenBasedRememberMeServices("SimpleAuth", userService, tokenRepository);
+        rememberMeServices.setTokenValiditySeconds(60 * 60 * 24 * 7);
+        return rememberMeServices;
     }
 
     /**

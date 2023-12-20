@@ -19,6 +19,6 @@ public class CustomPersistentTokenBasedRememberMeServices extends PersistentToke
 
     @Override
     protected boolean rememberMeRequested(HttpServletRequest request, String parameter) {
-        return (Boolean) request.getAttribute("remember-me");
+        return (Boolean) request.getAttribute("remember");
     }
 }

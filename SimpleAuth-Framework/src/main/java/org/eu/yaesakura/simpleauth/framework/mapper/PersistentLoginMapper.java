@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @Mapper
 public interface PersistentLoginMapper {
 
-    @Select("SELECT * FROM persistent_logins where series = #{series}")
+    @Select("SELECT * FROM persistent_login where series = #{series}")
     PersistentLogin getTokenBySeries(String series);
 
     /**
@@ -24,7 +24,7 @@ public interface PersistentLoginMapper {
      * @param token 令牌
      * @param lastUsed 上次使用时间
      */
-    @Insert("INSERT INTO persistent_logins (username, series, token, last_used) values(#{username},#{series},#{token},#{lastUsed})")
+    @Insert("INSERT INTO persistent_login (username, series, token, last_used) values(#{username},#{series},#{token},#{lastUsed})")
     void insertToken(String username, String series, String token, LocalDateTime lastUsed);
 
     /**
@@ -33,13 +33,13 @@ public interface PersistentLoginMapper {
      * @param lastUsed 上次使用时间
      * @param series
      */
-    @Update("UPDATE persistent_logins SET token = #{token}, last_used = #{lastUsed} WHERE series = #{series}")
+    @Update("UPDATE persistent_login SET token = #{token}, last_used = #{lastUsed} WHERE series = #{series}")
     void updateToken(String token, LocalDateTime lastUsed, String series);
 
     /**
      * 根据用户名删除令牌
      * @param username 用户名
      */
-    @Delete("DELETE FROM persistent_logins WHERE username = #{username}")
+    @Delete("DELETE FROM persistent_login WHERE username = #{username}")
     void deleteTokenByUsername(String username);
 }

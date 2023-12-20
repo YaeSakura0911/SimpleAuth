@@ -42,6 +42,7 @@ public class CustomAuthenticationFilter extends AbstractAuthenticationProcessing
 
             String username = loginDTO.getUsername();
             String password = loginDTO.getPassword();
+            request.setAttribute("remember", loginDTO.getRemember());
 
             UsernamePasswordAuthenticationToken authRequest = UsernamePasswordAuthenticationToken.unauthenticated(username, password);
             authRequest.setDetails(this.authenticationDetailsSource.buildDetails(request));

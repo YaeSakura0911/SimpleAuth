@@ -14,11 +14,13 @@ function handleLogout() {
 </script>
 
 <template>
-    主页
-    <a-button @click="handleLogout">
-        注销
-    </a-button>
-    <router-view />
+    <a-layout>
+        主页
+        <a-button @click="handleLogout">
+            注销
+        </a-button>
+        <router-view />
+    </a-layout>
 </template>
 
 <style scoped>

@@ -14,4 +14,6 @@ public class LoginDTO {
     private String username;
     // 密码
     private String password;
+    // 记住我
+    private Boolean remember;
 }
