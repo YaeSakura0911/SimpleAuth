@@ -22,6 +22,8 @@ import java.io.PrintWriter;
 public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
+        response.sendRedirect("http://localhost:5173/login");
+
         response.setContentType("application/json;charset=utf-8");
 
         ResponseResult<Object> responseResult = ResponseResult.error(401, authException.getMessage());
@@ -31,5 +33,7 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
         PrintWriter writer = response.getWriter();
         writer.write(s);
         writer.close();
+
+
     }
 }

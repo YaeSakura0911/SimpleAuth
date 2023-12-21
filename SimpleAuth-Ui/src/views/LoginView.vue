@@ -24,7 +24,7 @@ function onFinishFailed(errorInfo) {
 }
 
 function handleGithubOAuth() {
-    window.open('http://localhost:8080/login/oauth2/github','_blank', 'width=500, height=500')
+    window.open('http://127.0.0.1:8080/login/oauth2/github','_blank', 'width=500, height=500')
 }
 function handleGoogleOAuth() {
     // const url = 'https://accounts.google.com/o/oauth2/v2/auth'
@@ -33,7 +33,7 @@ function handleGoogleOAuth() {
     // const response_type = 'token'
     // const scope = 'https://www.googleapis.com/auth/userinfo.email+https://www.googleapis.com/auth/userinfo.profile+openid'
     // window.open(`${url}?client_id=${client_id}&redirect_uri=${redirect_uri}&response_type=${response_type}&scope=${scope}`, '_self')
-    window.open('http://localhost:8080/login/oauth2/google', '_blank', 'width=500, height=500')
+    window.open('http://127.0.0.1:8080/login/oauth2/google', '_blank', 'width=500, height=500')
 }
 </script>
 
@@ -96,11 +96,11 @@ function handleGoogleOAuth() {
                         </a-divider>
 
                         <a-space direction="vertical" style="width: 100%">
-                            <a-button @click="handleGithubOAuth" block>
+                            <a-button href="http://127.0.0.1:8080/login/oauth2/github" block>
                                 <github-outlined />
                                 使用 Github 登录
                             </a-button>
-                            <a-button @click="handleGoogleOAuth" block>
+                            <a-button href="http://127.0.0.1:8080/login/oauth2/google" block>
                                 <google-outlined />
                                 使用 Google 登录
                             </a-button>

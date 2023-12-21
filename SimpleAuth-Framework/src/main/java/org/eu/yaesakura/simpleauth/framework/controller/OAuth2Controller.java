@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 
 public class OAuth2Controller {
-    @RequestMapping("/login/oauth2/code/google")
+    @RequestMapping("/login/oauth2/callback/google")
     public void googleOAuth2(HttpServletRequest request, HttpServletResponse response) {
         System.out.println(request);
         System.out.println(response);

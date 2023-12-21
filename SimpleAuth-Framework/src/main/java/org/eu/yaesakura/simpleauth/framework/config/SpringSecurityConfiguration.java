@@ -20,6 +20,10 @@ import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -86,22 +90,27 @@ public class SpringSecurityConfiguration {
                     urlBasedCorsConfigurationSource.registerCorsConfiguration("/**", corsConfiguration);
                     cors.configurationSource(urlBasedCorsConfigurationSource);
                 })
+                .formLogin(AbstractHttpConfigurer::disable)
                 // 记住我
                 .rememberMe(rememberMe -> {
                     rememberMe.rememberMeServices(customPersistentTokenBasedRememberMeServices());
                 })
                 // OAuth2
                 .oauth2Login(oauth2 -> {
-                    oauth2.loginProcessingUrl("/login");
-                    oauth2.loginPage("/login");
+//                    oauth2.loginProcessingUrl("/login");
+//                    oauth2.loginPage("/login");
                     oauth2.authorizationEndpoint(authorization -> {
                         authorization.baseUri("/login/oauth2");
+                    });
+                    oauth2.redirectionEndpoint(redirection -> {
+                        redirection.baseUri("/login/oauth2/callback/*");
                     });
                 })
                 // 认证请求
                 .authorizeHttpRequests(authorize -> {
                     // 放行登录、注销接口
                     authorize.requestMatchers(HttpMethod.POST, "/login", "/logout").permitAll();
+                    authorize.requestMatchers("/login/oauth2/callback/*").permitAll();
                     // 其他接口都要认证
                     authorize.anyRequest().authenticated();
                 })
