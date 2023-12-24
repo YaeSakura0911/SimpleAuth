@@ -96,21 +96,21 @@ public class SpringSecurityConfiguration {
                     rememberMe.rememberMeServices(customPersistentTokenBasedRememberMeServices());
                 })
                 // OAuth2
-                .oauth2Login(oauth2 -> {
-//                    oauth2.loginProcessingUrl("/login");
-//                    oauth2.loginPage("/login");
-                    oauth2.authorizationEndpoint(authorization -> {
-                        authorization.baseUri("/login/oauth2");
-                    });
-                    oauth2.redirectionEndpoint(redirection -> {
-                        redirection.baseUri("/login/oauth2/callback/*");
-                    });
-                })
+//                .oauth2Login(oauth2 -> {
+////                    oauth2.loginProcessingUrl("/login");
+////                    oauth2.loginPage("/login");
+//                    oauth2.authorizationEndpoint(authorization -> {
+//                        authorization.baseUri("/login/oauth2");
+//                    });
+//                    oauth2.redirectionEndpoint(redirection -> {
+//                        redirection.baseUri("/login/oauth2/callback/*");
+//                    });
+//                })
                 // 认证请求
                 .authorizeHttpRequests(authorize -> {
                     // 放行登录、注销接口
                     authorize.requestMatchers(HttpMethod.POST, "/login", "/logout").permitAll();
-                    authorize.requestMatchers("/login/oauth2/callback/*").permitAll();
+                    authorize.requestMatchers("/login/oauth2/**").permitAll();
                     // 其他接口都要认证
                     authorize.anyRequest().authenticated();
                 })

@@ -22,7 +22,7 @@ import java.io.PrintWriter;
 public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
-        response.sendRedirect("http://localhost:5173/login");
+//        response.sendRedirect("http://localhost:5173/login");
 
         response.setContentType("application/json;charset=utf-8");
 
