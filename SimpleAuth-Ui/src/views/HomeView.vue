@@ -1,6 +1,6 @@
 <script setup>
 import {useRouter} from "vue-router";
-import {logout} from "@/apis/basic";
+import {logout} from "@/apis/authentication";
 import {message} from "ant-design-vue";
 
 const router = useRouter()

@@ -110,6 +110,8 @@ public class SpringSecurityConfiguration {
                 .authorizeHttpRequests(authorize -> {
                     // 放行登录、注销接口
                     authorize.requestMatchers(HttpMethod.POST, "/login", "/logout").permitAll();
+                    // 放行所有认证接口
+                    authorize.requestMatchers("/auth/**").permitAll();
                     authorize.requestMatchers("/login/oauth2/**").permitAll();
                     // 其他接口都要认证
                     authorize.anyRequest().authenticated();

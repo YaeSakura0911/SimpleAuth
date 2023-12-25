@@ -23,3 +23,11 @@ export function googleOAuth(form) {
 export function logout() {
     return request.post('/logout')
 }
+
+/**
+ * 发送短信验证码
+ * @param phone
+ */
+export function sendSmsCode(phone) {
+    return request.post("/auth/smsCode", {phone: phone})
+}

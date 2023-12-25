@@ -109,7 +109,7 @@ public class OAuth2Controller {
 
         HttpEntity<Object> getHttpEntity = new HttpEntity<>(getHeader);
 
-        restTemplate.getForObject("https://api.github.com/user", getHttpEntity, )
+//        restTemplate.getForObject("https://api.github.com/user", getHttpEntity, )
 
         response.sendRedirect("http://localhost:5173/register");
     }
@@ -122,9 +122,9 @@ public class OAuth2Controller {
     }
 
     @Data
-    public static class GithubUserInfo() {
+    public static class GithubUserInfo {
         private String email;
         private String login;
-        private
+//        private
     }
 }

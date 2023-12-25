@@ -28,8 +28,11 @@
         <security.version>3.2.0</security.version>
         <bouncy-castle.version>1.77</bouncy-castle.version>
         <lombok.version>1.18.30</lombok.version>
+        <mysql.version>8.2.0</mysql.version>
+        <aliyun-sdk.verison>2.0.24</aliyun-sdk.verison>
         <mybatis.version>3.0.3</mybatis.version>
         <mybatis-plus.version>3.5.4.1</mybatis-plus.version>
+        <dom4j.version>2.1.4</dom4j.version>
         <test.version>3.2.0</test.version>
     </properties>
 
@@ -56,10 +59,22 @@
                 <version>3.2.0</version>
             </dependency>
 
+            <!-- Spring Data -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-data-redis</artifactId>
+                <version>3.2.0</version>
+            </dependency>
+
             <!-- Bouncy Castle -->
             <dependency>
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcprov-jdk18on</artifactId>
+                <version>${bouncy-castle.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcpkix-jdk18on</artifactId>
                 <version>${bouncy-castle.version}</version>
             </dependency>
 
@@ -96,6 +111,20 @@
                 <groupId>org.apache.httpcomponents.client5</groupId>
                 <artifactId>httpclient5</artifactId>
                 <version>5.3</version>
+            </dependency>
+
+            <!-- Aliyun SDK -->
+            <dependency>
+                <groupId>com.aliyun</groupId>
+                <artifactId>dysmsapi20170525</artifactId>
+                <version>${aliyun-sdk.verison}</version>
+            </dependency>
+
+            <!-- Dom4j -->
+            <dependency>
+                <groupId>org.dom4j</groupId>
+                <artifactId>dom4j</artifactId>
+                <version>${dom4j.version}</version>
             </dependency>
 
             <!-- Spring Test -->

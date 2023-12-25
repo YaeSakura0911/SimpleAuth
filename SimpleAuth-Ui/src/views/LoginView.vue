@@ -1,7 +1,7 @@
 <script setup>
 import {reactive} from 'vue'
 import {GithubOutlined, GoogleOutlined, UserOutlined, LockOutlined, WindowsOutlined} from '@ant-design/icons-vue'
-import {googleOAuth, login} from "@/apis/basic";
+import {googleOAuth, login} from "@/apis/authentication";
 import {onBeforeRouteUpdate, useRouter} from "vue-router";
 import {message} from "ant-design-vue";
 
