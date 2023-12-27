@@ -33,7 +33,7 @@ public class SMSUtil {
      * @param phoneNumber 手机号
      * @param code 验证码
      */
-    public void sendSMS(String phoneNumber, String code) {
+    public void sendSMSCode(String phoneNumber, String code) {
         try {
             // 创建客户端
             Config config = new Config();

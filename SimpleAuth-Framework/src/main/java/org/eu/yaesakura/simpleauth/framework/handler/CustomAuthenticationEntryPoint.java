@@ -25,6 +25,7 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
 //        response.sendRedirect("http://localhost:5173/login");
 
         response.setContentType("application/json;charset=utf-8");
+        response.setStatus(401);
 
         ResponseResult<Object> responseResult = ResponseResult.error(401, authException.getMessage());
 
@@ -33,7 +34,5 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
         PrintWriter writer = response.getWriter();
         writer.write(s);
         writer.close();
-
-
     }
 }

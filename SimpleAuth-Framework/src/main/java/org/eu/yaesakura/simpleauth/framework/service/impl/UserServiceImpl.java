@@ -6,7 +6,7 @@ import org.eu.yaesakura.simpleauth.framework.domain.entity.User;
 import org.eu.yaesakura.simpleauth.framework.domain.entity.UserRole;
 import org.eu.yaesakura.simpleauth.framework.mapper.PermissionMapper;
 import org.eu.yaesakura.simpleauth.framework.mapper.RolePermissionMapper;
-import org.eu.yaesakura.simpleauth.framework.mapper.UserRepository;
+import org.eu.yaesakura.simpleauth.framework.mapper.UserMapper;
 import org.eu.yaesakura.simpleauth.framework.mapper.UserRoleMapper;
 import org.eu.yaesakura.simpleauth.framework.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,17 +27,17 @@ import java.util.stream.Collectors;
 @Service
 public class UserServiceImpl implements UserService {
 
-    private final UserRepository userRepository;
+    private final UserMapper userMapper;
     private final UserRoleMapper userRoleMapper;
     private final RolePermissionMapper rolePermissionMapper;
     private final PermissionMapper permissionMapper;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository,
+    public UserServiceImpl(UserMapper userMapper,
                            UserRoleMapper userRoleMapper,
                            RolePermissionMapper rolePermissionMapper,
                            PermissionMapper permissionMapper) {
-        this.userRepository = userRepository;
+        this.userMapper = userMapper;
         this.userRoleMapper = userRoleMapper;
         this.rolePermissionMapper = rolePermissionMapper;
         this.permissionMapper = permissionMapper;
@@ -46,7 +46,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         // 根据用户名查询用户
-        User user = userRepository.getUserByUsername(username);
+        User user = userMapper.getUserByUsername(username);
+
+        if (user == null) {
+            throw new UsernameNotFoundException("用户名或密码错误");
+        }
 
         // 根据用户ID查询用户角色
         List<UserRole> userRoleList = userRoleMapper.getUserRolesByUserId(user.getId());

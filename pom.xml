@@ -66,6 +66,13 @@
                 <version>3.2.0</version>
             </dependency>
 
+            <!-- Spring Email -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-mail</artifactId>
+                <version>3.2.0</version>
+            </dependency>
+
             <!-- Bouncy Castle -->
             <dependency>
                 <groupId>org.bouncycastle</groupId>

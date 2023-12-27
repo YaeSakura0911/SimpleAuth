@@ -24,8 +24,9 @@ function onFinishFailed(errorInfo) {
 }
 
 function handleGithubOAuth() {
-    window.open('http://127.0.0.1:8080/login/oauth2/github','_blank', 'width=500, height=500')
+    window.open('http://127.0.0.1:8080/login/oauth2/github', '_blank', 'width=500, height=500')
 }
+
 function handleGoogleOAuth() {
     // const url = 'https://accounts.google.com/o/oauth2/v2/auth'
     // const client_id = '648723572402-842982hcrr4ln1i6gd0lk206lel4h60a.apps.googleusercontent.com'
@@ -80,16 +81,14 @@ function handleGoogleOAuth() {
                             </a-form-item>
 
                             <a-form-item>
-                                <a-space direction="vertical" style="width: 100%">
-                                    <a-button type="primary" html-type="submit" block>
-                                        登录
-                                    </a-button>
-                                    <router-link to="/register">
-                                        <a-button block>注册</a-button>
-                                    </router-link>
-                                </a-space>
+                                <a-button type="primary" html-type="submit" block>
+                                    登录
+                                </a-button>
                             </a-form-item>
                         </a-form>
+
+                        没有账号？
+                        <router-link to="/register">立即注册</router-link>
 
                         <a-divider>
                             <a-typography-text type="secondary">其他登录方式</a-typography-text>
@@ -97,15 +96,15 @@ function handleGoogleOAuth() {
 
                         <a-space direction="vertical" style="width: 100%">
                             <a-button href="http://127.0.0.1:8080/login/oauth2/github" block>
-                                <github-outlined />
+                                <github-outlined/>
                                 使用 Github 登录
                             </a-button>
                             <a-button href="http://127.0.0.1:8080/login/oauth2/google" block>
-                                <google-outlined />
+                                <google-outlined/>
                                 使用 Google 登录
                             </a-button>
                             <a-button block>
-                                <windows-outlined />
+                                <windows-outlined/>
                                 使用 Microsoft 登录
                             </a-button>
                         </a-space>

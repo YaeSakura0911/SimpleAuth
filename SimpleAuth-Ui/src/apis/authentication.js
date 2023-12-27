@@ -25,9 +25,41 @@ export function logout() {
 }
 
 /**
+ * 用户名注册
+ * @param form 用户名注册表单
+ */
+export function usernameRegister(form) {
+    return request.post('/auth/register/username', form)
+}
+
+/**
+ * 邮箱注册
+ * @param form 邮箱注册表单
+ */
+export function emailRegister(form) {
+    return request.post('/auth/register/email', form)
+}
+
+/**
+ * 手机号注册
+ * @param form 手机号注册表单
+ */
+export function phoneRegister(form) {
+    return request.post('/auth/register/phone', form)
+}
+
+/**
  * 发送短信验证码
- * @param phone
+ * @param phone 手机号
  */
 export function sendSmsCode(phone) {
-    return request.post("/auth/smsCode", {phone: phone})
+    return request.post("/auth/code/sms", {phone: phone})
+}
+
+/**
+ * 发送邮件验证码
+ * @param email 收件人邮箱
+ */
+export function sendEmailCode(email) {
+    return request.post('/auth/code/email', {email: email})
 }

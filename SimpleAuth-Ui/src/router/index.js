@@ -82,6 +82,7 @@ router.beforeEach(async (to, from) => {
 })
 
 router.afterEach((to, from) => {
+    // TODO：每次都要去掉上次添加的标题
     const routeTitle = to.meta.title;
     const originTitle = document.title;
     document.title = routeTitle + ' | ' + originTitle

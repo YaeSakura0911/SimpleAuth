@@ -1,58 +1,64 @@
 <script setup>
 import {computed, onBeforeMount, reactive, ref} from "vue";
 import {onBeforeRouteUpdate, useRoute, useRouter} from "vue-router";
-import {githubOAuth, sendSmsCode} from "@/apis/authentication";
+import {
+    emailRegister,
+    githubOAuth,
+    phoneRegister,
+    sendEmailCode,
+    sendSmsCode,
+    usernameRegister
+} from "@/apis/authentication";
 import {message} from "ant-design-vue";
 
 const route = useRoute()
 const router = useRouter()
 const buttonLoading = ref(false)
 const getCaptchaCountdown = ref(60)
-const getCaptchaDisabled = ref(false)
-const captchaButtonText = ref('获取验证码')
+const getCodeDisabled = ref(false)
+const codeButtonText = ref('获取验证码')
 const currentRegisterMethod = ref('用户名注册')
 const showUsernameRegister = ref(true)
-const registerFormRef = ref()
-const registerForm = reactive({
+const usernameRegisterFormRef = ref()
+// 用户名注册表单
+const usernameRegisterForm = reactive({
     username: '',
     password: '',
-    email: '',
-    captcha: ''
 })
 const showEmailRegister = ref(false)
 const emailRegisterFormRef = ref()
+// 邮箱注册表单
 const emailRegisterForm = reactive({
     email: '',
-    password: ''
+    password: '',
+    code: ''
 })
 const showPhoneRegister = ref(false)
 const phoneRegisterFormRef = ref()
+// 电话注册表单
 const phoneRegisterForm = reactive({
     phone: '',
     password: '',
     code: ''
 })
+// 表单验证规则
 const validateRules = {
     username: [
-        {required: true, message: '请输入账号！', trigger: 'blur'},
-        {validator: checkUsernameExist, trigger: 'blur'}
-    ],
-    password: [
-        {required: true, message: '请输入密码！', trigger: 'blur'},
-        {min: 8, message: '最少8位字符！', trigger: 'blur'}
+        { required: true, message: '请输入账号！', trigger: 'blur' },
+        { validator: checkUsernameExist, trigger: 'blur' }
     ],
     email: [
-        {required: true, message: '请输入电子邮件！', trigger: 'blur'},
-        {type: 'email', message: '请输入有效的邮箱地址。', trigger: 'blur'}
-    ]
-}
-
-const computeCanSendVerifyCode = computed(() => {
-
-})
-
-function handleFinish() {
-    buttonLoading.value = true
+        { required: true, message: '请输入电子邮件！', trigger: 'blur' },
+        { type: 'email', message: '请输入有效的邮箱地址！', trigger: 'blur' }
+    ],
+    phone: [
+        { required: true, message: '请输入手机号！', trigger: 'blur' },
+        { pattern: /^(13[0-9]|14[01456879]|15[0-35-9]|16[2567]|17[0-8]|18[0-9]|19[0-35-9])\d{8}$/, message: '请输入有效的手机号！', trigger: 'blur' }
+    ],
+    password: [
+        { required: true, message: '请输入密码！', trigger: 'blur' },
+        { min: 8, message: '最少8位字符！', trigger: 'blur' }
+    ],
 }
 
 /**
@@ -91,40 +97,95 @@ function handleSegmentedChange(title) {
     }
 }
 
-function handleSmsCode() {
-    getCaptchaDisabled.value = true
-    if (getCaptchaDisabled.value) {
-        sendSmsCode(phoneRegisterForm.phone).then(() => {
-            message.success('验证码发送成功')
+/**
+ * 用户名注册
+ */
+function handleUsernameRegister() {
+    usernameRegisterFormRef.value.validate().then(() => {
+        buttonLoading.value = true
+        usernameRegister(usernameRegisterForm).then(() => {
+            message.success('注册成功')
+            buttonLoading.value = false
+
+            router.push('/login')
         })
-    }
-    const lock = setInterval(() => {
-        getCaptchaCountdown.value = getCaptchaCountdown.value - 1
-        captchaButtonText.value = getCaptchaCountdown.value + '秒后重发'
-        if (getCaptchaCountdown.value === 0) {
-            getCaptchaCountdown.value = 60
-            captchaButtonText.value = '获取验证码'
-            getCaptchaDisabled.value = false
-            clearInterval(lock)
-        }
-    }, 1000)
+    })
+}
+
+/**
+ * 邮箱注册
+ */
+function handleEmailRegister() {
+    emailRegisterFormRef.value.validate().then(() => {
+        buttonLoading.value = true
+        emailRegister(emailRegisterForm).then(() => {
+            message.success('注册成功！')
+            buttonLoading.value = false
+
+            router.push('/login')
+        })
+    })
+}
+
+/**
+ * 手机号注册
+ */
+function handlePhoneRegister() {
+    phoneRegisterFormRef.value.validate().then(() => {
+        buttonLoading.value = true
+        phoneRegister(phoneRegisterForm).then(() => {
+            message.success('注册成功')
+            buttonLoading.value = false
+
+            router.push('/login')
+        })
+    })
 }
 
 function handleEmailCode() {
-    getCaptchaDisabled.value = true
-    if (getCaptchaDisabled.value) {
+    emailRegisterFormRef.value.validateFields(['email']).then(() => {
+        getCodeDisabled.value = true
 
-    }
-    const lock = setInterval(() => {
-        getCaptchaCountdown.value = getCaptchaCountdown.value - 1
-        captchaButtonText.value = getCaptchaCountdown.value + '秒后重发'
-        if (getCaptchaCountdown.value === 0) {
-            getCaptchaCountdown.value = 60
-            captchaButtonText.value = '获取验证码'
-            getCaptchaDisabled.value = false
-            clearInterval(lock)
-        }
-    }, 1000)
+        sendEmailCode(emailRegisterForm.email).then(() => {
+            message.success('验证码发送成功')
+        })
+
+        const lock = setInterval(() => {
+            getCaptchaCountdown.value = getCaptchaCountdown.value - 1
+            codeButtonText.value = getCaptchaCountdown.value + '秒后重发'
+            if (getCaptchaCountdown.value === 0) {
+                getCaptchaCountdown.value = 60
+                codeButtonText.value = '获取验证码'
+                getCodeDisabled.value = false
+                clearInterval(lock)
+            }
+        }, 1000)
+    })
+}
+
+/**
+ * 发送短信验证码
+ */
+function handleSendSmsCode() {
+    phoneRegisterFormRef.value.validateFields(['phone']).then(() => {
+        getCodeDisabled.value = true
+
+        // 发送验证码
+        sendSmsCode(phoneRegisterForm.phone).then(() => {
+            message.success('验证码发送成功')
+        })
+
+        const lock = setInterval(() => {
+            getCaptchaCountdown.value = getCaptchaCountdown.value - 1
+            codeButtonText.value = getCaptchaCountdown.value + '秒后重发'
+            if (getCaptchaCountdown.value === 0) {
+                getCaptchaCountdown.value = 60
+                codeButtonText.value = '获取验证码'
+                getCodeDisabled.value = false
+                clearInterval(lock)
+            }
+        }, 1000)
+    })
 }
 </script>
 
@@ -146,34 +207,32 @@ function handleEmailCode() {
 
                         <!-- 用户名注册 开始 -->
                         <a-form class="register-form"
-                                ref="registerFormRef"
+                                ref="usernameRegisterFormRef"
                                 v-if="showUsernameRegister"
-                                :model="registerForm"
+                                :model="usernameRegisterForm"
                                 :rules="validateRules"
                                 :label-col="{ style: { width: '72px' } }"
-                                :colon="false"
-                                @finish="handleFinish">
+                                :colon="false">
                             <a-form-item name="username" label="用户名">
-                                <a-input v-model:value="registerForm.username"/>
+                                <a-input v-model:value="usernameRegisterForm.username"/>
                             </a-form-item>
                             <a-form-item name="password" label="密码">
-                                <a-input-password v-model:value="registerForm.password"/>
+                                <a-input-password v-model:value="usernameRegisterForm.password"/>
                             </a-form-item>
                             <a-form-item>
-                                <a-button type="primary" html-type="submit" :loading="buttonLoading" block>注册</a-button>
+                                <a-button type="primary" :loading="buttonLoading" @click="handleUsernameRegister" block>注册</a-button>
                             </a-form-item>
                         </a-form>
                         <!-- 用户名注册 结束 -->
 
                         <!-- 邮箱注册 开始 -->
                         <a-form class="register-form"
-                                ref="emailRegisterFormRef"
                                 v-if="showEmailRegister"
+                                ref="emailRegisterFormRef"
                                 :model="emailRegisterForm"
                                 :rules="validateRules"
                                 :label-col="{ style: { width: '72px' } }"
-                                :colon="false"
-                                @finish="handleFinish">
+                                :colon="false">
                             <a-form-item name="email" label="电子邮件">
                                 <a-input v-model:value="emailRegisterForm.email"/>
                             </a-form-item>
@@ -182,15 +241,15 @@ function handleEmailCode() {
                             </a-form-item>
                             <a-form-item name="" label="验证码">
                                 <a-space style="width: 100%">
-                                    <a-input v-model:value="registerForm.captcha"/>
-                                    <a-button :disabled="getCaptchaDisabled" @click="handleEmailCode">{{
-                                            captchaButtonText
+                                    <a-input v-model:value="emailRegisterForm.code"/>
+                                    <a-button :disabled="getCodeDisabled" @click="handleEmailCode">{{
+                                            codeButtonText
                                         }}
                                     </a-button>
                                 </a-space>
                             </a-form-item>
                             <a-form-item>
-                                <a-button type="primary" html-type="submit" :loading="buttonLoading" block>注册</a-button>
+                                <a-button type="primary" :loading="buttonLoading" @click="handleEmailRegister" block>注册</a-button>
                             </a-form-item>
                         </a-form>
                         <!-- 邮箱注册 结束 -->
@@ -210,15 +269,15 @@ function handleEmailCode() {
                             </a-form-item>
                             <a-form-item name="" label="验证码">
                                 <a-space style="width: 100%">
-                                    <a-input v-model:value="phoneRegisterForm.captcha"/>
-                                    <a-button :disabled="getCaptchaDisabled" @click="handleSmsCode">{{
-                                            captchaButtonText
+                                    <a-input v-model:value="phoneRegisterForm.code"/>
+                                    <a-button :disabled="getCodeDisabled" @click="handleSendSmsCode">{{
+                                            codeButtonText
                                         }}
                                     </a-button>
                                 </a-space>
                             </a-form-item>
                             <a-form-item>
-                                <a-button type="primary" html-type="submit" :loading="buttonLoading" block>注册</a-button>
+                                <a-button type="primary" :loading="buttonLoading" @click="handlePhoneRegister" block>注册</a-button>
                             </a-form-item>
                         </a-form>
                         <!-- 手机号注册 结束 -->

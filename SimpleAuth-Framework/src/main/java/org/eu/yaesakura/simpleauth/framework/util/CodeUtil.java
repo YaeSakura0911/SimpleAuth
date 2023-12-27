@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class CodeUtil {
 
-    @Value("${simple-auth.config.sms-code-length}")
+    @Value("${simple-auth.config.code-length}")
     private Integer length;
 
     /**

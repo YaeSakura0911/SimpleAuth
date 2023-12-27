@@ -23,10 +23,11 @@ public class CustomAuthenticationFailureHandler implements AuthenticationFailure
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
         response.setContentType("application/json;charset=utf-8");
+        response.setStatus(500);
 
-        ResponseResult<Object> responseResult = ResponseResult.error(500, exception.getMessage());
-
-        String s = new ObjectMapper().writeValueAsString(responseResult);
+//        ResponseResult<Object> responseResult = ResponseResult.error(500, exception.getMessage());
+//
+//        String s = new ObjectMapper().writeValueAsString(responseResult);
 
         PrintWriter writer = response.getWriter();
         writer.write(exception.getMessage());
