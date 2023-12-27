@@ -61,9 +61,7 @@ const router = createRouter({
 
 router.beforeEach(async (to, from) => {
     const user = useUserStore()
-
-    // TODO: to.hash可以获取到谷歌重定向过来的数据
-
+    
     // 如果目的地需要认证
     if (to.meta.requireAuth) {
         await getUserBySession().then(data => {
@@ -82,9 +80,8 @@ router.beforeEach(async (to, from) => {
 })
 
 router.afterEach((to, from) => {
-    // TODO：每次都要去掉上次添加的标题
     const routeTitle = to.meta.title;
-    const originTitle = document.title;
+    const originTitle = document.title.split(' | ').slice(-1);
     document.title = routeTitle + ' | ' + originTitle
 })
 
