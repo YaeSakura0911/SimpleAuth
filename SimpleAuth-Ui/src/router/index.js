@@ -61,7 +61,7 @@ const router = createRouter({
 
 router.beforeEach(async (to, from) => {
     const user = useUserStore()
-    
+
     // 如果目的地需要认证
     if (to.meta.requireAuth) {
         await getUserBySession().then(data => {
