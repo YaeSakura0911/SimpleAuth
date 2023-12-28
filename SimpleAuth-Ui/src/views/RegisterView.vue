@@ -1,5 +1,5 @@
 <script setup>
-import {computed, onBeforeMount, reactive, ref} from "vue";
+import {reactive, ref} from "vue";
 import {onBeforeRouteUpdate, useRoute, useRouter} from "vue-router";
 import {
     emailRegister,
@@ -59,6 +59,9 @@ const validateRules = {
         { required: true, message: '请输入密码！', trigger: 'blur' },
         { min: 8, message: '最少8位字符！', trigger: 'blur' }
     ],
+    code: [
+        { required: true, message: '请输入验证码！', trigger: 'blur' }
+    ]
 }
 
 /**
@@ -209,6 +212,7 @@ function handleSendSmsCode() {
                         <a-form class="register-form"
                                 ref="usernameRegisterFormRef"
                                 v-if="showUsernameRegister"
+                                layout="vertical"
                                 :model="usernameRegisterForm"
                                 :rules="validateRules"
                                 :label-col="{ style: { width: '72px' } }"
@@ -229,24 +233,24 @@ function handleSendSmsCode() {
                         <a-form class="register-form"
                                 v-if="showEmailRegister"
                                 ref="emailRegisterFormRef"
+                                layout="vertical"
                                 :model="emailRegisterForm"
                                 :rules="validateRules"
-                                :label-col="{ style: { width: '72px' } }"
-                                :colon="false">
+                                :label-col="{ style: { width: '72px' } }">
                             <a-form-item name="email" label="电子邮件">
                                 <a-input v-model:value="emailRegisterForm.email"/>
                             </a-form-item>
                             <a-form-item name="password" label="密码">
                                 <a-input-password v-model:value="emailRegisterForm.password"/>
                             </a-form-item>
-                            <a-form-item name="" label="验证码">
-                                <a-space style="width: 100%">
-                                    <a-input v-model:value="emailRegisterForm.code"/>
+                            <a-form-item name="code" label="验证码">
+                                <a-flex gap="small">
+                                        <a-input v-model:value="emailRegisterForm.code"/>
                                     <a-button :disabled="getCodeDisabled" @click="handleEmailCode">{{
                                             codeButtonText
                                         }}
                                     </a-button>
-                                </a-space>
+                                </a-flex>
                             </a-form-item>
                             <a-form-item>
                                 <a-button type="primary" :loading="buttonLoading" @click="handleEmailRegister" block>注册</a-button>
@@ -257,24 +261,24 @@ function handleSendSmsCode() {
                         <!-- 手机号注册 开始 -->
                         <a-form v-if="showPhoneRegister"
                                 ref="phoneRegisterFormRef"
+                                layout="vertical"
                                 :model="phoneRegisterForm"
                                 :rules="validateRules"
-                                :label-col="{ style: { width: '72px' } }"
-                                :colon="false">
+                                :label-col="{ style: { width: '72px' } }">
                             <a-form-item name="phone" label="手机号">
                                 <a-input v-model:value="phoneRegisterForm.phone" />
                             </a-form-item>
                             <a-form-item name="password" label="密码">
                                 <a-input-password v-model:value="phoneRegisterForm.password"/>
                             </a-form-item>
-                            <a-form-item name="" label="验证码">
-                                <a-space style="width: 100%">
+                            <a-form-item name="code" label="验证码">
+                                <a-flex gap="small">
                                     <a-input v-model:value="phoneRegisterForm.code"/>
                                     <a-button :disabled="getCodeDisabled" @click="handleSendSmsCode">{{
                                             codeButtonText
                                         }}
                                     </a-button>
-                                </a-space>
+                                </a-flex>
                             </a-form-item>
                             <a-form-item>
                                 <a-button type="primary" :loading="buttonLoading" @click="handlePhoneRegister" block>注册</a-button>

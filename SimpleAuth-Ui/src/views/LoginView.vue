@@ -1,26 +1,60 @@
 <script setup>
-import {reactive} from 'vue'
+import {reactive, ref} from 'vue'
 import {GithubOutlined, GoogleOutlined, UserOutlined, LockOutlined, WindowsOutlined} from '@ant-design/icons-vue'
 import {googleOAuth, login} from "@/apis/authentication";
 import {onBeforeRouteUpdate, useRouter} from "vue-router";
 import {message} from "ant-design-vue";
 
 const router = useRouter()
-const loginForm = reactive({
+const currentLoginMethod = ref('密码登录')
+const codeButtonText = ref('获取验证码')
+const showPasswordLogin = ref(true)
+const showCodeLogin = ref(false)
+const passwordLoginFormRef = ref({})
+const passwordLoginForm = reactive({
     username: '',
     password: '',
-    remember: true,
+    remember: false,
 });
 
-function onFinish(values) {
-    login(values).then(() => {
+const codeLoginFormRef = ref({})
+const codeLoginForm = reactive({
+    emailOrPhone: '',
+    code: '',
+    remember: false
+})
+
+/**
+ *
+ */
+function handleSegmentedChange(title) {
+    switch (title) {
+        case '密码登录':
+            showPasswordLogin.value = true
+            showCodeLogin.value = false
+            break
+        case '验证码登录':
+            showPasswordLogin.value = false
+            showCodeLogin.value = true
+            break
+    }
+}
+
+/**
+ *
+ */
+function handlePasswordLogin() {
+    login(passwordLoginForm).then(() => {
         router.push('/home')
         message.success('登录成功')
     })
 }
 
-function onFinishFailed(errorInfo) {
-    console.log('Failed:', errorInfo);
+/**
+ *
+ */
+function handleCodeLogin() {
+
 }
 
 function handleGithubOAuth() {
@@ -46,46 +80,77 @@ function handleGoogleOAuth() {
                     <a-card>
                         <a-typography-title :level="3">SimpleAuth</a-typography-title>
 
-                        <br/>
+                        <br />
 
-                        <a-form
-                            :model="loginForm"
-                            class="login-form"
-                            @finish="onFinish"
-                            @finishFailed="onFinishFailed">
+                        <a-segmented v-model:value="currentLoginMethod" :options="['密码登录', '验证码登录']" @change="handleSegmentedChange" block />
+
+                        <br />
+
+                        <!-- 用户名登录 开始 -->
+                        <a-form v-if="showPasswordLogin"
+                                ref="passwordLoginFormRef"
+                                class="login-form"
+                                :model="passwordLoginForm">
                             <a-form-item
                                 name="username"
                                 :rules="[{ required: true, message: '请输入用户名！', trigger: 'blur' }]">
-                                <a-input v-model:value="loginForm.username" placeholder="用户名">
+                                <a-input v-model:value="passwordLoginForm.username" placeholder="用户名">
                                     <template #prefix>
                                         <UserOutlined class="site-form-item-icon"/>
                                     </template>
                                 </a-input>
                             </a-form-item>
-
                             <a-form-item
                                 name="password"
                                 :rules="[{ required: true, message: '请输入密码！', trigger: 'blur' }]">
-                                <a-input-password v-model:value="loginForm.password" placeholder="密码">
+                                <a-input-password v-model:value="passwordLoginForm.password" placeholder="密码">
                                     <template #prefix>
                                         <LockOutlined class="site-form-item-icon"/>
                                     </template>
                                 </a-input-password>
                             </a-form-item>
-
                             <a-form-item>
                                 <a-form-item name="remember" no-style>
-                                    <a-checkbox v-model:checked="loginForm.remember">记住我</a-checkbox>
+                                    <a-checkbox v-model:checked="passwordLoginForm.remember">记住我</a-checkbox>
                                 </a-form-item>
                                 <router-link class="login-form-forgot" to="/forget">忘记密码</router-link>
                             </a-form-item>
-
                             <a-form-item>
-                                <a-button type="primary" html-type="submit" block>
-                                    登录
-                                </a-button>
+                                <a-button type="primary" @click="handlePasswordLogin" block>登录</a-button>
                             </a-form-item>
                         </a-form>
+                        <!-- 用户名登录 结束 -->
+
+                        <!-- 验证码登录 开始 -->
+                        <a-form v-if="showCodeLogin" ref="codeLoginFormRef" :model="codeLoginForm">
+                            <a-form-item>
+                                <a-input placeholder="邮箱/手机号">
+                                    <template #prefix>
+                                        <UserOutlined />
+                                    </template>
+                                </a-input>
+                            </a-form-item>
+                            <a-form-item>
+                                <a-flex gap="small">
+                                    <a-input placeholder="验证码">
+                                        <template #prefix>
+                                            <LockOutlined />
+                                        </template>
+                                    </a-input>
+                                    <a-button>{{ codeButtonText }}</a-button>
+                                </a-flex>
+                            </a-form-item>
+                            <a-form-item>
+                                <a-form-item name="remember" no-style>
+                                    <a-checkbox v-model:checked="passwordLoginForm.remember">记住我</a-checkbox>
+                                </a-form-item>
+                                <router-link class="login-form-forgot" to="/forget">忘记密码</router-link>
+                            </a-form-item>
+                            <a-form-item>
+                                <a-button type="primary" @click="handleCodeLogin" block>登录</a-button>
+                            </a-form-item>
+                        </a-form>
+                        <!-- 验证码登录 结束 -->
 
                         没有账号？
                         <router-link to="/register">立即注册</router-link>

@@ -4,7 +4,6 @@ import {logout} from "@/apis/authentication";
 import {message} from "ant-design-vue";
 
 const router = useRouter()
-
 function handleLogout() {
     logout().then(() => {
         router.push('/login')
@@ -19,6 +18,7 @@ function handleLogout() {
         <a-button @click="handleLogout">
             注销
         </a-button>
+
         <router-view />
     </a-layout>
 </template>

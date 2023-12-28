@@ -41,6 +41,24 @@ const router = createRouter({
             }
         },
         {
+            path: '/reset-password',
+            name: 'ResetPassword',
+            component: () => import('@/views/ResetPasswordView.vue'),
+            meta: {
+                title: '重置密码',
+                requireAuth: false
+            }
+        },
+        {
+            path: '/reset-password-success',
+            name: 'ResetPasswordSuccess',
+            component: () => import('@/views/ResetSuccess.vue'),
+            meta: {
+                title: '重置密码成功',
+                requireAuth: false
+            }
+        },
+        {
             path: '/index',
             name: 'Index',
             component: IndexView,
