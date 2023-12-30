@@ -52,7 +52,11 @@ function handlePhoneForget() {
             <a-row justify="center" align="middle" style="min-height: 100vh">
                 <a-col :span="5">
                     <a-card>
-                        <a-typography-title :level="3">重置密码</a-typography-title>
+                        <a-typography-title :level="3">
+                            SimpleAuth
+                            <br />
+                            <a-typography-title :level="4">忘记密码</a-typography-title>
+                        </a-typography-title>
 
                         <br/>
 

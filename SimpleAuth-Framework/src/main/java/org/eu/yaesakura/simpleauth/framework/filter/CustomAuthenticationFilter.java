@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.eu.yaesakura.simpleauth.framework.domain.dto.LoginDTO;
+import org.eu.yaesakura.simpleauth.framework.domain.dto.PasswordLoginDTO;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -38,13 +38,13 @@ public class CustomAuthenticationFilter extends AbstractAuthenticationProcessing
                 stringBuilder.append(str);
             }
 
-            LoginDTO loginDTO = new ObjectMapper().readValue(stringBuilder.toString(), LoginDTO.class);
+            PasswordLoginDTO passwordLoginDTO = new ObjectMapper().readValue(stringBuilder.toString(), PasswordLoginDTO.class);
 
-            String username = loginDTO.getUsername();
-            String password = loginDTO.getPassword();
-            request.setAttribute("remember", loginDTO.getRemember());
+            String usernameOrEmailOrPhone = passwordLoginDTO.getUsernameOrEmailOrPhone();
+            String password = passwordLoginDTO.getPassword();
+            request.setAttribute("remember", passwordLoginDTO.getRemember());
 
-            UsernamePasswordAuthenticationToken authRequest = UsernamePasswordAuthenticationToken.unauthenticated(username, password);
+            UsernamePasswordAuthenticationToken authRequest = UsernamePasswordAuthenticationToken.unauthenticated(usernameOrEmailOrPhone, password);
             authRequest.setDetails(this.authenticationDetailsSource.buildDetails(request));
 
             return this.getAuthenticationManager().authenticate(authRequest);

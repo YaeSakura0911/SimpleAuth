@@ -1,23 +1,31 @@
 <script setup>
 import {reactive, ref} from 'vue'
 import {GithubOutlined, GoogleOutlined, UserOutlined, LockOutlined, WindowsOutlined} from '@ant-design/icons-vue'
-import {googleOAuth, login} from "@/apis/authentication";
+import {googleOAuth, login, sendEmailCode, sendSmsCode} from "@/apis/authentication";
 import {onBeforeRouteUpdate, useRouter} from "vue-router";
 import {message} from "ant-design-vue";
 
 const router = useRouter()
+const buttonLoading = ref(false)
 const currentLoginMethod = ref('密码登录')
+const getCodeCountdown = ref(60)
+const getCodeDisabled = ref(false)
 const codeButtonText = ref('获取验证码')
 const showPasswordLogin = ref(true)
 const showCodeLogin = ref(false)
-const passwordLoginFormRef = ref({})
+const validateRules = {
+    usernameOrEmailOrPhone: [{ required: true, message: '请输入用户名/邮箱/手机号！', trigger: 'blur' }],
+    emailOrPhone: [{ required: true, message: '请输入邮箱/手机号', trigger: 'blur' }],
+    password: [{ required: true, message: '请输入密码！', trigger: 'blur' }],
+    code: [{ required: true, message: '请输入验证码', trigger: 'blur' }]
+}
+const passwordLoginFormRef = ref()
 const passwordLoginForm = reactive({
-    username: '',
+    usernameOrEmailOrPhone: '',
     password: '',
     remember: false,
 });
-
-const codeLoginFormRef = ref({})
+const codeLoginFormRef = ref()
 const codeLoginForm = reactive({
     emailOrPhone: '',
     code: '',
@@ -44,9 +52,14 @@ function handleSegmentedChange(title) {
  *
  */
 function handlePasswordLogin() {
-    login(passwordLoginForm).then(() => {
-        router.push('/home')
-        message.success('登录成功')
+    buttonLoading.value = true
+    passwordLoginFormRef.value.validate().then(() => {
+        login(passwordLoginForm).then(() => {
+            router.push('/home')
+            message.success('登录成功')
+        }).finally(() => {
+            buttonLoading.value = false
+        })
     })
 }
 
@@ -54,7 +67,44 @@ function handlePasswordLogin() {
  *
  */
 function handleCodeLogin() {
+    codeLoginFormRef.value.validate().then(() => {
 
+    })
+}
+
+/**
+ *
+ */
+function handleCode() {
+    codeLoginFormRef.value.validateFields(['account']).then(() => {
+        getCodeDisabled.value = true
+
+        // 判断是邮箱还是手机号
+        let phoneReg = RegExp(/^(13[0-9]|14[01456879]|15[0-35-9]|16[2567]|17[0-8]|18[0-9]|19[0-35-9])\d{8}$/);
+        let emailReg = RegExp(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]+\.)+[a-zA-Z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]{2,}))$/)
+
+        if (codeLoginForm.emailOrPhone.match(emailReg)) {
+            sendEmailCode(codeLoginForm.emailOrPhone).then(() => {
+                message.success('验证码发送成功')
+            })
+        }
+        else if (codeLoginForm.emailOrPhone.match(phoneReg)) {
+            sendSmsCode(codeLoginForm.emailOrPhone).then(() => {
+                message.success('验证码发送成功')
+            })
+        }
+
+        const lock = setInterval(() => {
+            getCodeCountdown.value = getCodeCountdown.value - 1
+            codeButtonText.value = getCodeCountdown.value + '秒后重发'
+            if (getCodeCountdown.value === 0) {
+                getCodeCountdown.value = 60
+                codeButtonText.value = '获取验证码'
+                getCodeDisabled.value = false
+                clearInterval(lock)
+            }
+        }, 1000)
+    })
 }
 
 function handleGithubOAuth() {
@@ -78,7 +128,11 @@ function handleGoogleOAuth() {
             <a-row justify="center" align="middle" style="min-height: 100vh">
                 <a-col :span="5">
                     <a-card>
-                        <a-typography-title :level="3">SimpleAuth</a-typography-title>
+                        <a-typography-title :level="3">
+                            SimpleAuth
+                            <br />
+                            <a-typography-title :level="4">登录</a-typography-title>
+                        </a-typography-title>
 
                         <br />
 
@@ -86,26 +140,23 @@ function handleGoogleOAuth() {
 
                         <br />
 
-                        <!-- 用户名登录 开始 -->
+                        <!-- 密码登录 开始 -->
                         <a-form v-if="showPasswordLogin"
                                 ref="passwordLoginFormRef"
                                 class="login-form"
-                                :model="passwordLoginForm">
-                            <a-form-item
-                                name="username"
-                                :rules="[{ required: true, message: '请输入用户名！', trigger: 'blur' }]">
-                                <a-input v-model:value="passwordLoginForm.username" placeholder="用户名">
+                                :model="passwordLoginForm"
+                                :rules="validateRules">
+                            <a-form-item name="usernameOrEmailOrPhone">
+                                <a-input v-model:value="passwordLoginForm.usernameOrEmailOrPhone" placeholder="用户名/邮箱/手机号">
                                     <template #prefix>
-                                        <UserOutlined class="site-form-item-icon"/>
+                                        <UserOutlined />
                                     </template>
                                 </a-input>
                             </a-form-item>
-                            <a-form-item
-                                name="password"
-                                :rules="[{ required: true, message: '请输入密码！', trigger: 'blur' }]">
+                            <a-form-item name="password">
                                 <a-input-password v-model:value="passwordLoginForm.password" placeholder="密码">
                                     <template #prefix>
-                                        <LockOutlined class="site-form-item-icon"/>
+                                        <LockOutlined />
                                     </template>
                                 </a-input-password>
                             </a-form-item>
@@ -116,28 +167,28 @@ function handleGoogleOAuth() {
                                 <router-link class="login-form-forgot" to="/forget">忘记密码</router-link>
                             </a-form-item>
                             <a-form-item>
-                                <a-button type="primary" @click="handlePasswordLogin" block>登录</a-button>
+                                <a-button type="primary" :loading="buttonLoading" @click="handlePasswordLogin" block>登录</a-button>
                             </a-form-item>
                         </a-form>
-                        <!-- 用户名登录 结束 -->
+                        <!-- 密码登录 结束 -->
 
                         <!-- 验证码登录 开始 -->
-                        <a-form v-if="showCodeLogin" ref="codeLoginFormRef" :model="codeLoginForm">
-                            <a-form-item>
-                                <a-input placeholder="邮箱/手机号">
+                        <a-form v-if="showCodeLogin" ref="codeLoginFormRef" :model="codeLoginForm" :rules="validateRules">
+                            <a-form-item name="emailOrPhone">
+                                <a-input v-model:value="codeLoginForm.emailOrPhone" placeholder="邮箱/手机号">
                                     <template #prefix>
                                         <UserOutlined />
                                     </template>
                                 </a-input>
                             </a-form-item>
-                            <a-form-item>
+                            <a-form-item name="code">
                                 <a-flex gap="small">
                                     <a-input placeholder="验证码">
                                         <template #prefix>
                                             <LockOutlined />
                                         </template>
                                     </a-input>
-                                    <a-button>{{ codeButtonText }}</a-button>
+                                    <a-button :disabled="getCodeDisabled" @click="handleCode">{{ codeButtonText }}</a-button>
                                 </a-flex>
                             </a-form-item>
                             <a-form-item>

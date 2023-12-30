@@ -20,17 +20,10 @@ import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
-import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
-import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.authentication.session.CompositeSessionAuthenticationStrategy;
-import org.springframework.security.web.authentication.session.ConcurrentSessionControlAuthenticationStrategy;
-import org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy;
-import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
+import org.springframework.security.web.authentication.session.*;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -100,26 +93,23 @@ public class SpringSecurityConfiguration {
 ////                    oauth2.loginProcessingUrl("/login");
 ////                    oauth2.loginPage("/login");
 //                    oauth2.authorizationEndpoint(authorization -> {
-//                        authorization.baseUri("/login/oauth2");
+//                        authorization.baseUri("/auth/login/oauth2");
 //                    });
 //                    oauth2.redirectionEndpoint(redirection -> {
-//                        redirection.baseUri("/login/oauth2/callback/*");
+//                        redirection.baseUri("/auth/login/oauth2/callback/*");
 //                    });
 //                })
                 // 认证请求
                 .authorizeHttpRequests(authorize -> {
-                    // 放行登录、注销接口
-                    authorize.requestMatchers(HttpMethod.POST, "/login", "/logout").permitAll();
                     // 放行所有认证接口
                     authorize.requestMatchers("/auth/**").permitAll();
-                    authorize.requestMatchers("/login/oauth2/**").permitAll();
                     // 其他接口都要认证
                     authorize.anyRequest().authenticated();
                 })
                 // 注销
                 .logout(logout -> {
                     // 配置注销请求路径
-                    logout.logoutUrl("/logout");
+                    logout.logoutUrl("/auth/logout");
                     // 配置注销成功处理器
                     logout.logoutSuccessHandler(logoutSuccessHandler);
                 })
@@ -129,13 +119,14 @@ public class SpringSecurityConfiguration {
                     exception.authenticationEntryPoint(authenticationEntryPoint);
                 })
                 // 添加自定义认证过滤器
-                .addFilterAfter(customAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+                .addFilterAfter(customAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(customAuthenticationFilter(), CustomAuthenticationFilter.class);
         return httpSecurity.build();
     }
 
     @Bean
     public CustomAuthenticationFilter customAuthenticationFilter() {
-        CustomAuthenticationFilter customAuthenticationFilter = new CustomAuthenticationFilter("/login");
+        CustomAuthenticationFilter customAuthenticationFilter = new CustomAuthenticationFilter("/auth/login");
         // 配置认证管理器
         customAuthenticationFilter.setAuthenticationManager(authenticationManager());
         // 配置认证成功处理器
@@ -187,12 +178,21 @@ public class SpringSecurityConfiguration {
     }
 
     /**
+     *
+     */
+    @Bean
+    public SessionAuthenticationStrategy sessionFixationProtectionStrategy() {
+        return new SessionFixationProtectionStrategy();
+    }
+
+    /**
      * 组合会话认证策略，按顺序执行委托的策略
      */
     @Bean
     public SessionAuthenticationStrategy compositeSessionAuthenticationStrategy() {
         List<SessionAuthenticationStrategy> delegateStrategies = new ArrayList<>();
         delegateStrategies.add(concurrentSessionControlAuthenticationStrategy());
+        delegateStrategies.add(sessionFixationProtectionStrategy());
         delegateStrategies.add(registerSessionAuthenticationStrategy());
         return new CompositeSessionAuthenticationStrategy(delegateStrategies);
     }

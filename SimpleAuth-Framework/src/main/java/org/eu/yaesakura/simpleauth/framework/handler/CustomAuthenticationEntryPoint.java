@@ -27,12 +27,12 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
         response.setContentType("application/json;charset=utf-8");
         response.setStatus(401);
 
-        ResponseResult<Object> responseResult = ResponseResult.error(401, authException.getMessage());
-
-        String s = new ObjectMapper().writeValueAsString(responseResult);
+//        ResponseResult<Object> responseResult = ResponseResult.error(401, authException.getMessage());
+//
+//        String s = new ObjectMapper().writeValueAsString(responseResult);
 
         PrintWriter writer = response.getWriter();
-        writer.write(s);
+        writer.write(authException.getMessage());
         writer.close();
     }
 }

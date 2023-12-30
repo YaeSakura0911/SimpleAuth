@@ -40,7 +40,7 @@ public class EmailUtil {
 
             javaMailSender.send(mimeMessage);
         } catch (Exception ex) {
-            ex.printStackTrace();
+            throw new RuntimeException(ex.getMessage());
         }
     }
 }

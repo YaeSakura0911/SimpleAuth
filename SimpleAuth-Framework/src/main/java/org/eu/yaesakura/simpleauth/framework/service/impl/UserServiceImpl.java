@@ -14,6 +14,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -45,19 +46,37 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        // 根据用户名查询用户
-        User user = userMapper.getUserByUsername(username);
+        User user;
+        String emailRegex = "(([^<>()\\[\\]\\\\.,;:\\s@\"]+(\\.[^<>()\\[\\]\\\\.,;:\\s@\"]+)*)|(\".+\"))@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}])|(([a-zA-Z\\-0-9\\u00A0-\\uD7FF\\uF900-\\uFDCF\\uFDF0-\\uFFEF]+\\.)+[a-zA-Z\\u00A0-\\uD7FF\\uF900-\\uFDCF\\uFDF0-\\uFFEF]{2,}))";
+        String phoneRegex = "^(13[0-9]|14[01456879]|15[0-35-9]|16[2567]|17[0-8]|18[0-9]|19[0-35-9])\\d{8}$";
+
+        if (username.matches(emailRegex)) {
+            user = userMapper.getUserByEmail(username);
+        }
+        else if (username.matches(phoneRegex)) {
+            user = userMapper.getUserByPhone(username);
+        }
+        else {
+            // 根据用户名查询用户
+            user = userMapper.getUserByUsername(username);
+        }
 
         if (user == null) {
             throw new UsernameNotFoundException("用户名或密码错误");
         }
 
+        user.setPermissionList(getUserPermissionList(user.getId()));
+
+        return user;
+    }
+
+    private List<Permission> getUserPermissionList(Long userId) {
         // 根据用户ID查询用户角色
-        List<UserRole> userRoleList = userRoleMapper.getUserRolesByUserId(user.getId());
+        List<UserRole> userRoleList = userRoleMapper.getUserRolesByUserId(userId);
 
         // 如果没有角色
         if (userRoleList.isEmpty()) {
-            return user;
+            return null;
         }
 
         // 提取出角色ID
@@ -68,17 +87,13 @@ public class UserServiceImpl implements UserService {
 
         // 如果没有权限
         if (rolePermissionList.isEmpty()) {
-            return user;
+            return null;
         }
 
         // 提取出权限ID
         Set<Integer> permissionIdSet = rolePermissionList.stream().map(RolePermission::getPermissionId).collect(Collectors.toSet());
 
         // 根据权限ID查询权限
-        List<Permission> permissionList = permissionMapper.getPermissionsByPermissionIds(permissionIdSet);
-
-        user.setPermissionList(permissionList);
-
-        return user;
+        return permissionMapper.getPermissionsByPermissionIds(permissionIdSet);
     }
 }

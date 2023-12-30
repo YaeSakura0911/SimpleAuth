@@ -32,11 +32,16 @@ public class User implements UserDetails {
     private Boolean enabled;
     // 权限集合
     @TableField(exist = false)
-    private List<Permission> permissionList = new ArrayList<>();
+    private List<Permission> permissionList;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return permissionList.stream().map(permission -> new SimpleGrantedAuthority(permission.getCode())).toList();
+        if (permissionList != null) {
+            return permissionList.stream().map(permission -> new SimpleGrantedAuthority(permission.getCode())).toList();
+        }
+        else {
+            return new ArrayList<>();
+        }
     }
 
     @Override

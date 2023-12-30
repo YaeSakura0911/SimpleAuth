@@ -1,4 +1,5 @@
 import axios from "axios";
+import router from "@/router";
 import {message} from "ant-design-vue";
 
 export const request = axios.create({
@@ -23,6 +24,10 @@ request.interceptors.response.use(response => {
     return response.data
 }, error => {
     switch (error.response.status) {
+        case 401:
+            router.push('/login')
+            message.error(error.response.data)
+            break
         case 500:
             message.error(error.response.data)
     }

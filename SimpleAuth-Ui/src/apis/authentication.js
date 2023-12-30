@@ -6,7 +6,7 @@ import axios from "axios";
  * @param form 登录表单
  */
 export function login(form) {
-    return request.post('/login', form)
+    return request.post('/auth/login', form)
 }
 
 export function githubOAuth(form) {

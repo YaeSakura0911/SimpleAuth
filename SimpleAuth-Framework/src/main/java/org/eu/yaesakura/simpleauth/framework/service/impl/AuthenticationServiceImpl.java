@@ -141,7 +141,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         String code = codeUtil.generateCode();
 
-        redisTemplate.opsForValue().set(email, code, emailCodeExpire, TimeUnit.MINUTES);
+        try {
+            redisTemplate.opsForValue().set(email, code, emailCodeExpire, TimeUnit.MINUTES);
+        } catch (Exception ex) {
+            throw new RuntimeException(ex.getMessage());
+        }
 
         emailUtil.sendEmailCode(email, code);
     }
