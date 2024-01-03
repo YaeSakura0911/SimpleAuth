@@ -9,7 +9,7 @@ import org.eu.yaesakura.simpleauth.framework.mapper.UserMapper;
 import org.eu.yaesakura.simpleauth.framework.service.AuthenticationService;
 import org.eu.yaesakura.simpleauth.framework.util.CodeUtil;
 import org.eu.yaesakura.simpleauth.framework.util.EmailUtil;
-import org.eu.yaesakura.simpleauth.framework.util.SMSUtil;
+import org.eu.yaesakura.simpleauth.framework.util.SmsUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,7 +33,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private Integer emailCodeExpire;
 
     private final UserMapper userMapper;
-    private final SMSUtil smsUtil;
+    private final SmsUtil smsUtil;
     private final EmailUtil emailUtil;
     private final CodeUtil codeUtil;
     private final StringRedisTemplate redisTemplate;
@@ -42,7 +42,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Autowired
     public AuthenticationServiceImpl(
             UserMapper userMapper,
-            SMSUtil smsUtil,
+            SmsUtil smsUtil,
             EmailUtil emailUtil,
             CodeUtil codeUtil,
             StringRedisTemplate redisTemplate,

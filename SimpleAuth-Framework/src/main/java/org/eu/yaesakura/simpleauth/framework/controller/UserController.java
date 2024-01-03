@@ -25,7 +25,10 @@ public class UserController {
         User principal = (User) authentication.getPrincipal();
         GetUserBySessionVo getUserBySessionVo = new GetUserBySessionVo();
         getUserBySessionVo.setName(principal.getUsername());
-        getUserBySessionVo.setPermissions(principal.getPermissionList().stream().map(Permission::getCode).toList());
+        if (principal.getPermissionList() != null && !principal.getPermissionList().isEmpty()) {
+            getUserBySessionVo.setPermissions(principal.getPermissionList().stream().map(Permission::getCode).toList());
+        }
+
         return getUserBySessionVo;
     }
 }

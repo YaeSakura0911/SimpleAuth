@@ -14,7 +14,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -52,31 +51,30 @@ public class UserServiceImpl implements UserService {
 
         if (username.matches(emailRegex)) {
             user = userMapper.getUserByEmail(username);
+            if (user == null) {
+                throw new UsernameNotFoundException("邮箱不存在");
+            }
         }
         else if (username.matches(phoneRegex)) {
             user = userMapper.getUserByPhone(username);
+            if (user == null) {
+                throw new UsernameNotFoundException("手机号不存在");
+            }
         }
         else {
             // 根据用户名查询用户
             user = userMapper.getUserByUsername(username);
+            if (user == null) {
+                throw new UsernameNotFoundException("用户名不存在");
+            }
         }
 
-        if (user == null) {
-            throw new UsernameNotFoundException("用户名或密码错误");
-        }
-
-        user.setPermissionList(getUserPermissionList(user.getId()));
-
-        return user;
-    }
-
-    private List<Permission> getUserPermissionList(Long userId) {
         // 根据用户ID查询用户角色
-        List<UserRole> userRoleList = userRoleMapper.getUserRolesByUserId(userId);
+        List<UserRole> userRoleList = userRoleMapper.getUserRolesByUserId(user.getId());
 
         // 如果没有角色
         if (userRoleList.isEmpty()) {
-            return null;
+            return user;
         }
 
         // 提取出角色ID
@@ -87,13 +85,15 @@ public class UserServiceImpl implements UserService {
 
         // 如果没有权限
         if (rolePermissionList.isEmpty()) {
-            return null;
+            return user;
         }
 
         // 提取出权限ID
         Set<Integer> permissionIdSet = rolePermissionList.stream().map(RolePermission::getPermissionId).collect(Collectors.toSet());
 
         // 根据权限ID查询权限
-        return permissionMapper.getPermissionsByPermissionIds(permissionIdSet);
+        user.setPermissionList(permissionMapper.getPermissionsByPermissionIds(permissionIdSet));
+
+        return user;
     }
 }

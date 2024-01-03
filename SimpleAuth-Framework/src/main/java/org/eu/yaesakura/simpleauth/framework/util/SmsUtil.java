@@ -17,7 +17,7 @@ import java.util.HashMap;
  */
 
 @Component
-public class SMSUtil {
+public class SmsUtil {
 
     @Value("${aliyun.endpoint}")
     private String endpoint;
