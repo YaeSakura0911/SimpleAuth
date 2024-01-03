@@ -2,11 +2,19 @@ import {request} from "@/utils/request";
 import axios from "axios";
 
 /**
- * 登录
- * @param form 登录表单
+ * 密码登录
+ * @param form 密码登录表单
  */
-export function login(form) {
+export function passwordLogin(form) {
     return request.post('/auth/login', form)
+}
+
+/**
+ * 验证码登录
+ * @param form 验证码登录表单
+ */
+export function codeLogin(form) {
+    return request.post('/auth/login/code', form)
 }
 
 export function githubOAuth(form) {
@@ -21,7 +29,7 @@ export function googleOAuth(form) {
  * 注销
  */
 export function logout() {
-    return request.post('/logout')
+    return request.post('/auth/logout')
 }
 
 /**

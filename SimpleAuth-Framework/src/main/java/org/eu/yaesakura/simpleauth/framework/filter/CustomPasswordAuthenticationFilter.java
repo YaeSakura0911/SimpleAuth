@@ -21,9 +21,9 @@ import java.nio.charset.StandardCharsets;
  * @author YaeSakura
  */
 
-public class CustomAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
+public class CustomPasswordAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
 
-    public CustomAuthenticationFilter(String defaultFilterProcessesUrl) {
+    public CustomPasswordAuthenticationFilter(String defaultFilterProcessesUrl) {
         super(defaultFilterProcessesUrl);
     }
 

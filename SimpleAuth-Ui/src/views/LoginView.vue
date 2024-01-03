@@ -1,8 +1,8 @@
 <script setup>
 import {reactive, ref} from 'vue'
 import {GithubOutlined, GoogleOutlined, UserOutlined, LockOutlined, WindowsOutlined} from '@ant-design/icons-vue'
-import {googleOAuth, login, sendEmailCode, sendSmsCode} from "@/apis/authentication";
-import {onBeforeRouteUpdate, useRouter} from "vue-router";
+import {codeLogin, passwordLogin, sendEmailCode, sendSmsCode} from "@/apis/authentication";
+import {useRouter} from "vue-router";
 import {message} from "ant-design-vue";
 
 const router = useRouter()
@@ -54,7 +54,7 @@ function handleSegmentedChange(title) {
 function handlePasswordLogin() {
     buttonLoading.value = true
     passwordLoginFormRef.value.validate().then(() => {
-        login(passwordLoginForm).then(() => {
+        passwordLogin(passwordLoginForm).then(() => {
             router.push('/home')
             message.success('登录成功')
         }).finally(() => {
@@ -67,8 +67,14 @@ function handlePasswordLogin() {
  *
  */
 function handleCodeLogin() {
+    buttonLoading.value = true
     codeLoginFormRef.value.validate().then(() => {
-
+        codeLogin(codeLoginForm).then(() => {
+            router.push('/home')
+            message.success('登录成功')
+        }).finally(() => {
+            buttonLoading.value = false
+        })
     })
 }
 
@@ -76,7 +82,7 @@ function handleCodeLogin() {
  *
  */
 function handleCode() {
-    codeLoginFormRef.value.validateFields(['account']).then(() => {
+    codeLoginFormRef.value.validateFields(['emailOrPhone']).then(() => {
         getCodeDisabled.value = true
 
         // 判断是邮箱还是手机号
@@ -183,7 +189,7 @@ function handleGoogleOAuth() {
                             </a-form-item>
                             <a-form-item name="code">
                                 <a-flex gap="small">
-                                    <a-input placeholder="验证码">
+                                    <a-input v-model:value="codeLoginForm.code" placeholder="验证码">
                                         <template #prefix>
                                             <LockOutlined />
                                         </template>
@@ -193,7 +199,7 @@ function handleGoogleOAuth() {
                             </a-form-item>
                             <a-form-item>
                                 <a-form-item name="remember" no-style>
-                                    <a-checkbox v-model:checked="passwordLoginForm.remember">记住我</a-checkbox>
+                                    <a-checkbox v-model:checked="codeLoginForm.remember">记住我</a-checkbox>
                                 </a-form-item>
                                 <router-link class="login-form-forgot" to="/forget">忘记密码</router-link>
                             </a-form-item>

@@ -1,9 +1,8 @@
 <script setup>
 import {reactive, ref} from "vue";
-import {onBeforeRouteUpdate, useRoute, useRouter} from "vue-router";
+import {useRoute, useRouter} from "vue-router";
 import {
     emailRegister,
-    githubOAuth,
     phoneRegister,
     sendEmailCode,
     sendSmsCode,

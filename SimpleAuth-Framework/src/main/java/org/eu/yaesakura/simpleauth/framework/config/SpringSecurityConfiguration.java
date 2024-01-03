@@ -1,14 +1,17 @@
 package org.eu.yaesakura.simpleauth.framework.config;
 
+import org.eu.yaesakura.simpleauth.framework.CustomCodeAuthenticationProvider;
 import org.eu.yaesakura.simpleauth.framework.CustomPersistentTokenBasedRememberMeServices;
 import org.eu.yaesakura.simpleauth.framework.CustomPersistentTokenRepositoryImpl;
-import org.eu.yaesakura.simpleauth.framework.filter.CustomAuthenticationFilter;
+import org.eu.yaesakura.simpleauth.framework.filter.CustomPasswordAuthenticationFilter;
+import org.eu.yaesakura.simpleauth.framework.filter.CustomCodeAuthenticationFilter;
 import org.eu.yaesakura.simpleauth.framework.handler.*;
 import org.eu.yaesakura.simpleauth.framework.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -42,6 +45,9 @@ import java.util.List;
 @Configuration
 public class SpringSecurityConfiguration {
 
+    @Value("${simple-auth.config.remember-me-expire}")
+    private Integer rememberMeExpire;
+
     private final UserService userService;
     private final CustomAccessDeniedHandler accessDeniedHandler;
     private final CustomAuthenticationEntryPoint authenticationEntryPoint;
@@ -49,6 +55,7 @@ public class SpringSecurityConfiguration {
     private final CustomAuthenticationFailureHandler authenticationFailureHandler;
     private final CustomLogoutSuccessHandler logoutSuccessHandler;
     private final CustomPersistentTokenRepositoryImpl tokenRepository;
+    private final StringRedisTemplate stringRedisTemplate;
 
     @Autowired
     public SpringSecurityConfiguration (
@@ -58,7 +65,8 @@ public class SpringSecurityConfiguration {
             CustomAuthenticationSuccessHandler authenticationSuccessHandler,
             CustomLogoutSuccessHandler logoutSuccessHandler,
             CustomPersistentTokenRepositoryImpl tokenRepository,
-            UserService userService) {
+            UserService userService,
+            StringRedisTemplate stringRedisTemplate) {
         this.accessDeniedHandler = accessDeniedHandler;
         this.authenticationEntryPoint = authenticationEntryPoint;
         this.authenticationSuccessHandler = authenticationSuccessHandler;
@@ -66,6 +74,7 @@ public class SpringSecurityConfiguration {
         this.logoutSuccessHandler = logoutSuccessHandler;
         this.tokenRepository = tokenRepository;
         this.userService = userService;
+        this.stringRedisTemplate = stringRedisTemplate;
     }
 
     @Bean
@@ -120,25 +129,37 @@ public class SpringSecurityConfiguration {
                 })
                 // 添加自定义认证过滤器
                 .addFilterAfter(customAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
-                .addFilterAfter(customAuthenticationFilter(), CustomAuthenticationFilter.class);
+                .addFilterAfter(customAuthenticationFilter(), CustomPasswordAuthenticationFilter.class);
         return httpSecurity.build();
     }
 
     @Bean
-    public CustomAuthenticationFilter customAuthenticationFilter() {
-        CustomAuthenticationFilter customAuthenticationFilter = new CustomAuthenticationFilter("/auth/login");
+    public CustomPasswordAuthenticationFilter customAuthenticationFilter() {
+        CustomPasswordAuthenticationFilter customPasswordAuthenticationFilter = new CustomPasswordAuthenticationFilter("/auth/login");
         // 配置认证管理器
-        customAuthenticationFilter.setAuthenticationManager(authenticationManager());
+        customPasswordAuthenticationFilter.setAuthenticationManager(authenticationManager());
         // 配置认证成功处理器
-        customAuthenticationFilter.setAuthenticationSuccessHandler(authenticationSuccessHandler);
+        customPasswordAuthenticationFilter.setAuthenticationSuccessHandler(authenticationSuccessHandler);
         // 配置认证失败处理器
-        customAuthenticationFilter.setAuthenticationFailureHandler(authenticationFailureHandler);
-        customAuthenticationFilter.setSecurityContextRepository(new HttpSessionSecurityContextRepository());
+        customPasswordAuthenticationFilter.setAuthenticationFailureHandler(authenticationFailureHandler);
+        customPasswordAuthenticationFilter.setSecurityContextRepository(new HttpSessionSecurityContextRepository());
         // 配置会话认证策略
-        customAuthenticationFilter.setSessionAuthenticationStrategy(compositeSessionAuthenticationStrategy());
+        customPasswordAuthenticationFilter.setSessionAuthenticationStrategy(compositeSessionAuthenticationStrategy());
         // 配置记住我服务
-        customAuthenticationFilter.setRememberMeServices(customPersistentTokenBasedRememberMeServices());
-        return customAuthenticationFilter;
+        customPasswordAuthenticationFilter.setRememberMeServices(customPersistentTokenBasedRememberMeServices());
+        return customPasswordAuthenticationFilter;
+    }
+
+    @Bean
+    public CustomCodeAuthenticationFilter customCodeAuthenticationFilter() {
+        CustomCodeAuthenticationFilter customCodeAuthenticationFilter = new CustomCodeAuthenticationFilter("/auth/login/code");
+        customCodeAuthenticationFilter.setAuthenticationManager(authenticationManager());
+        customCodeAuthenticationFilter.setAuthenticationSuccessHandler(authenticationSuccessHandler);
+        customCodeAuthenticationFilter.setAuthenticationFailureHandler(authenticationFailureHandler);
+        customCodeAuthenticationFilter.setSecurityContextRepository(new HttpSessionSecurityContextRepository());
+        customCodeAuthenticationFilter.setSessionAuthenticationStrategy(compositeSessionAuthenticationStrategy());
+        customCodeAuthenticationFilter.setRememberMeServices(customPersistentTokenBasedRememberMeServices());
+        return customCodeAuthenticationFilter;
     }
 
     /**
@@ -150,7 +171,11 @@ public class SpringSecurityConfiguration {
         daoAuthenticationProvider.setPasswordEncoder(argon2PasswordEncoder());
         daoAuthenticationProvider.setUserDetailsService(userService);
 
-        return new ProviderManager(daoAuthenticationProvider);
+        CustomCodeAuthenticationProvider customCodeAuthenticationProvider = new CustomCodeAuthenticationProvider();
+        customCodeAuthenticationProvider.setUserDetailsService(userService);
+        customCodeAuthenticationProvider.setStringRedisTemplate(stringRedisTemplate);
+
+        return new ProviderManager(daoAuthenticationProvider, customCodeAuthenticationProvider);
     }
 
     /**
@@ -200,7 +225,7 @@ public class SpringSecurityConfiguration {
     @Bean
     public RememberMeServices customPersistentTokenBasedRememberMeServices() {
         CustomPersistentTokenBasedRememberMeServices rememberMeServices = new CustomPersistentTokenBasedRememberMeServices("SimpleAuth", userService, tokenRepository);
-        rememberMeServices.setTokenValiditySeconds(60 * 60 * 24 * 7);
+        rememberMeServices.setTokenValiditySeconds(rememberMeExpire);
         return rememberMeServices;
     }
 

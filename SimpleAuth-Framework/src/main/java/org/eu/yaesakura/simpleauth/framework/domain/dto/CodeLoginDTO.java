@@ -11,7 +11,7 @@ import lombok.Data;
 @Data
 public class CodeLoginDTO {
     // 邮箱或手机号
-    private String account;
+    private String emailOrPhone;
     // 验证码
     private String code;
     // 记住我
