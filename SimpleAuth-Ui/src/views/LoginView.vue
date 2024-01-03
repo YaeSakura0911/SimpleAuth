@@ -52,8 +52,9 @@ function handleSegmentedChange(title) {
  *
  */
 function handlePasswordLogin() {
-    buttonLoading.value = true
     passwordLoginFormRef.value.validate().then(() => {
+        buttonLoading.value = true
+
         passwordLogin(passwordLoginForm).then(() => {
             router.push('/home')
             message.success('登录成功')
@@ -67,8 +68,9 @@ function handlePasswordLogin() {
  *
  */
 function handleCodeLogin() {
-    buttonLoading.value = true
     codeLoginFormRef.value.validate().then(() => {
+        buttonLoading.value = true
+
         codeLogin(codeLoginForm).then(() => {
             router.push('/home')
             message.success('登录成功')
@@ -204,7 +206,7 @@ function handleGoogleOAuth() {
                                 <router-link class="login-form-forgot" to="/forget">忘记密码</router-link>
                             </a-form-item>
                             <a-form-item>
-                                <a-button type="primary" @click="handleCodeLogin" block>登录</a-button>
+                                <a-button type="primary" :loading="buttonLoading" @click="handleCodeLogin" block>登录</a-button>
                             </a-form-item>
                         </a-form>
                         <!-- 验证码登录 结束 -->
