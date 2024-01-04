@@ -128,13 +128,13 @@ public class SpringSecurityConfiguration {
                     exception.authenticationEntryPoint(authenticationEntryPoint);
                 })
                 // 添加自定义认证过滤器
-                .addFilterAfter(customAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
-                .addFilterAfter(customAuthenticationFilter(), CustomPasswordAuthenticationFilter.class);
+                .addFilterAfter(customPasswordAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(customCodeAuthenticationFilter(), CustomPasswordAuthenticationFilter.class);
         return httpSecurity.build();
     }
 
     @Bean
-    public CustomPasswordAuthenticationFilter customAuthenticationFilter() {
+    public CustomPasswordAuthenticationFilter customPasswordAuthenticationFilter() {
         CustomPasswordAuthenticationFilter customPasswordAuthenticationFilter = new CustomPasswordAuthenticationFilter("/auth/login");
         // 配置认证管理器
         customPasswordAuthenticationFilter.setAuthenticationManager(authenticationManager());

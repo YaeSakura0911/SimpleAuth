@@ -34,6 +34,10 @@ public class CustomPersistentTokenRepositoryImpl implements PersistentTokenRepos
     public PersistentRememberMeToken getTokenForSeries(String seriesId) {
         PersistentLogin persistentLogin = mapper.getTokenBySeries(seriesId);
 
+        if (persistentLogin == null) {
+            return null;
+        }
+
         return new PersistentRememberMeToken(
                 persistentLogin.getUsername(),
                 persistentLogin.getSeries(),
