@@ -18,7 +18,7 @@ import java.util.Date;
  */
 
 public class CustomPersistentTokenBasedRememberMeServices extends PersistentTokenBasedRememberMeServices {
-    
+
     private final PersistentTokenRepository tokenRepository;
 
     public CustomPersistentTokenBasedRememberMeServices(String key, UserDetailsService userDetailsService, PersistentTokenRepository tokenRepository) {

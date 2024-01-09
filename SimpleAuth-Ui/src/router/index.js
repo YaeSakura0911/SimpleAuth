@@ -72,6 +72,51 @@ const router = createRouter({
                         requireAuth: true
                     }
                 },
+                {
+                    path: '/system',
+                    name: 'System',
+                    meta: {
+                        title: '系统设置'
+                    },
+                    children: [
+                        {
+                            path: '/user',
+                            name: 'User',
+                            component: () => import('@/views/UserView.vue'),
+                            meta: {
+                                title: '用户管理',
+                                requireAuth: true
+                            }
+                        },
+                        {
+                            path: '/role',
+                            name: 'Role',
+                            component: () => import('@/views/RoleView.vue'),
+                            meta: {
+                                title: '角色管理',
+                                requireAuth: true
+                            }
+                        }
+                    ]
+                },
+                {
+                    path: '/log',
+                    name: 'Log',
+                    meta: {
+                        title: '日志'
+                    },
+                    children: [
+                        {
+                            path: '/login-log',
+                            name: 'LoginLog',
+                            component: () => import('@/views/LoginLogView.vue'),
+                            meta: {
+                                title: '登录日志',
+                                requireAuth: true
+                            }
+                        }
+                    ]
+                }
             ]
         },
     ]

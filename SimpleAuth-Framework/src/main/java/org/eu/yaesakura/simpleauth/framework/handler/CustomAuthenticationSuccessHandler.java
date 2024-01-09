@@ -22,6 +22,21 @@ import java.io.PrintWriter;
 public class CustomAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+        System.out.println(request.getRemoteHost());
+
+        String ip = request.getHeader("x-forwarded-for");
+        if (ip == null || ip.isEmpty() || ip == "unknown") {
+            ip = request.getHeader("Proxy-Client-IP");
+        }
+        if (ip == null || ip.isEmpty() || ip == "unknown") {
+            ip = request.getHeader("WL-Proxy-Client-IP");
+        }
+        if (ip == null || ip.isEmpty() || ip == "unknown") {
+            ip = request.getRemoteAddr();
+        }
+
+        System.out.println(ip);
+
         response.setContentType("application/json;charset=utf-8");
 
         ResponseResult<String> responseResult = ResponseResult.success("认证成功！");

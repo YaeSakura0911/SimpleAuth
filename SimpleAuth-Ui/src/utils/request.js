@@ -3,7 +3,7 @@ import router from "@/router";
 import {message} from "ant-design-vue";
 
 export const request = axios.create({
-    baseURL: 'http://localhost:8080',
+    baseURL: 'http://192.168.1.184:8080',
     withCredentials: true,
     withXSRFToken: true
 })
