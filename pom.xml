@@ -127,6 +127,20 @@
                 <version>${dom4j.version}</version>
             </dependency>
 
+            <!-- GeoIP2 -->
+            <dependency>
+                <groupId>com.maxmind.geoip2</groupId>
+                <artifactId>geoip2</artifactId>
+                <version>4.2.0</version>
+            </dependency>
+
+            <!-- Browscap Java -->
+            <dependency>
+                <groupId>com.blueconic</groupId>
+                <artifactId>browscap-java</artifactId>
+                <version>1.4.3</version>
+            </dependency>
+
             <!-- Spring Test -->
             <dependency>
                 <groupId>org.springframework.boot</groupId>

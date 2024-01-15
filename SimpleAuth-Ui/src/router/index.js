@@ -62,6 +62,9 @@ const router = createRouter({
             path: '/index',
             name: 'Index',
             component: IndexView,
+            meta: {
+                title: '主页'
+            },
             children: [
                 {
                     path: '/home',
@@ -96,27 +99,27 @@ const router = createRouter({
                                 title: '角色管理',
                                 requireAuth: true
                             }
+                        },
+                        {
+                            path: '/log',
+                            name: 'Log',
+                            meta: {
+                                title: '日志管理'
+                            },
+                            children: [
+                                {
+                                    path: '/login-log',
+                                    name: 'LoginLog',
+                                    component: () => import('@/views/LoginLogView.vue'),
+                                    meta: {
+                                        title: '登录日志',
+                                        requireAuth: true
+                                    }
+                                }
+                            ]
                         }
                     ]
                 },
-                {
-                    path: '/log',
-                    name: 'Log',
-                    meta: {
-                        title: '日志'
-                    },
-                    children: [
-                        {
-                            path: '/login-log',
-                            name: 'LoginLog',
-                            component: () => import('@/views/LoginLogView.vue'),
-                            meta: {
-                                title: '登录日志',
-                                requireAuth: true
-                            }
-                        }
-                    ]
-                }
             ]
         },
     ]

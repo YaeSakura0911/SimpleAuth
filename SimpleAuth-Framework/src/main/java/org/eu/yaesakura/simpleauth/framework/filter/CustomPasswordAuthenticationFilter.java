@@ -42,6 +42,7 @@ public class CustomPasswordAuthenticationFilter extends AbstractAuthenticationPr
 
             String usernameOrEmailOrPhone = passwordLoginDTO.getUsernameOrEmailOrPhone();
             String password = passwordLoginDTO.getPassword();
+            request.setAttribute("principal", usernameOrEmailOrPhone);
             request.setAttribute("remember", passwordLoginDTO.getRemember());
 
             UsernamePasswordAuthenticationToken authRequest = UsernamePasswordAuthenticationToken.unauthenticated(usernameOrEmailOrPhone, password);

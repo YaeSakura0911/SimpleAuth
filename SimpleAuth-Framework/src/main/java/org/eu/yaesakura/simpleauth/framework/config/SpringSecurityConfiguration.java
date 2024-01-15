@@ -1,18 +1,22 @@
 package org.eu.yaesakura.simpleauth.framework.config;
 
+import org.eu.yaesakura.simpleauth.framework.CustomAuthenticationDetailsSource;
 import org.eu.yaesakura.simpleauth.framework.CustomCodeAuthenticationProvider;
 import org.eu.yaesakura.simpleauth.framework.CustomPersistentTokenBasedRememberMeServices;
 import org.eu.yaesakura.simpleauth.framework.CustomPersistentTokenRepositoryImpl;
-import org.eu.yaesakura.simpleauth.framework.filter.CustomPasswordAuthenticationFilter;
 import org.eu.yaesakura.simpleauth.framework.filter.CustomCodeAuthenticationFilter;
+import org.eu.yaesakura.simpleauth.framework.filter.CustomPasswordAuthenticationFilter;
 import org.eu.yaesakura.simpleauth.framework.handler.*;
 import org.eu.yaesakura.simpleauth.framework.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.security.authentication.AuthenticationEventPublisher;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -48,6 +52,10 @@ public class SpringSecurityConfiguration {
     @Value("${simple-auth.config.remember-me-expire}")
     private Integer rememberMeExpire;
 
+    @Autowired
+    private ApplicationEventPublisher applicationEventPublisher;
+    @Autowired
+    private CustomAuthenticationDetailsSource customAuthenticationDetailsSource;
     private final UserService userService;
     private final CustomAccessDeniedHandler accessDeniedHandler;
     private final CustomAuthenticationEntryPoint authenticationEntryPoint;
@@ -148,6 +156,7 @@ public class SpringSecurityConfiguration {
         customPasswordAuthenticationFilter.setSessionAuthenticationStrategy(compositeSessionAuthenticationStrategy());
         // 配置记住我服务
         customPasswordAuthenticationFilter.setRememberMeServices(customPersistentTokenBasedRememberMeServices());
+        customPasswordAuthenticationFilter.setAuthenticationDetailsSource(customAuthenticationDetailsSource);
         return customPasswordAuthenticationFilter;
     }
 
@@ -157,9 +166,10 @@ public class SpringSecurityConfiguration {
         customCodeAuthenticationFilter.setAuthenticationManager(authenticationManager());
         customCodeAuthenticationFilter.setAuthenticationSuccessHandler(authenticationSuccessHandler);
         customCodeAuthenticationFilter.setAuthenticationFailureHandler(authenticationFailureHandler);
-        customCodeAuthenticationFilter.setSecurityContextRepository(new HttpSessionSecurityContextRepository());
+        customCodeAuthenticationFilter.setSecurityContextRepository(httpSessionSecurityContextRepository());
         customCodeAuthenticationFilter.setSessionAuthenticationStrategy(compositeSessionAuthenticationStrategy());
         customCodeAuthenticationFilter.setRememberMeServices(customPersistentTokenBasedRememberMeServices());
+        customCodeAuthenticationFilter.setAuthenticationDetailsSource(customAuthenticationDetailsSource);
         return customCodeAuthenticationFilter;
     }
 
@@ -176,7 +186,10 @@ public class SpringSecurityConfiguration {
         customCodeAuthenticationProvider.setUserDetailsService(userService);
         customCodeAuthenticationProvider.setStringRedisTemplate(stringRedisTemplate);
 
-        return new ProviderManager(daoAuthenticationProvider, customCodeAuthenticationProvider);
+        ProviderManager providerManager = new ProviderManager(daoAuthenticationProvider, customCodeAuthenticationProvider);
+        providerManager.setAuthenticationEventPublisher(authenticationEventPublisher());
+
+        return providerManager;
     }
 
     /**
@@ -228,6 +241,16 @@ public class SpringSecurityConfiguration {
         CustomPersistentTokenBasedRememberMeServices rememberMeServices = new CustomPersistentTokenBasedRememberMeServices("SimpleAuth", userService, tokenRepository);
         rememberMeServices.setTokenValiditySeconds(rememberMeExpire);
         return rememberMeServices;
+    }
+
+    @Bean
+    public HttpSessionSecurityContextRepository httpSessionSecurityContextRepository() {
+        return new HttpSessionSecurityContextRepository();
+    }
+
+    @Bean
+    public AuthenticationEventPublisher authenticationEventPublisher() {
+        return new DefaultAuthenticationEventPublisher(applicationEventPublisher);
     }
 
     /**

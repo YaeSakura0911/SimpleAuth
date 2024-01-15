@@ -1,5 +1,5 @@
 <script setup>
-import {computed, h, onMounted, reactive, ref} from "vue";
+import {computed, h, onMounted, reactive, ref, watch} from "vue";
 import {useRouter, RouterLink, useRoute} from "vue-router";
 import {logout} from "@/apis/authentication";
 import {message} from "ant-design-vue";
@@ -11,6 +11,12 @@ const collapsed = ref(false)
 const collapsedWidth = ref(80)
 const openKey = ref([])
 const selectedKey = ref([])
+const breadcrumb = ref({
+    routes: [],
+    itemRender: ({route}) => {
+        return h('span', route.breadcrumbName)
+    }
+})
 const menuItems = reactive([
     {
         key: 'home',
@@ -50,22 +56,32 @@ const menuItems = reactive([
     }
 ])
 
-const generateBreadcrumb = computed(() => {
-    route.matched
+/**
+ * 监听路由变化
+ */
+watch(() => route.matched, (newValue) => {
+    console.log(newValue)
+    breadcrumb.value.routes = []
+    for (let routeItem of newValue) {
+        // 如果路径为主页则不添加进面包屑
+        if (routeItem.path === '/home') {
+            continue
+        }
+        breadcrumb.value.routes.push({breadcrumbName: routeItem.meta.title})
+    }
 })
 
 function handleMenuSelect(selectedItem) {
-    console.log(selectedItem)
+    // console.log(selectedItem)
     selectedKey.value = selectedItem.selectedKeys
 }
 
 function handleMenuOpenChange(openKeys) {
-    console.log(openKeys)
+    // console.log(openKeys)
     openKey.value = openKeys
 }
 
 function handleBreakPoint(broken) {
-    console.log('断点回调', broken)
     if (broken) {
         collapsedWidth.value = 0
     }
@@ -127,12 +143,7 @@ function handleLogout() {
 
             <!---->
             <a-layout-content>
-                <a-page-header :title="router.currentRoute.value.meta.title" :ghost="false" :breadcrumb="generateBreadcrumb" />
-                <a-breadcrumb separator=">">
-                    <a-breadcrumb-item v-for="item in route.matched">
-                        {{item.meta.title}}
-                    </a-breadcrumb-item>
-                </a-breadcrumb>
+                <a-page-header :title="router.currentRoute.value.meta.title" :ghost="false" :breadcrumb="breadcrumb" />
 
                 <router-view />
             </a-layout-content>

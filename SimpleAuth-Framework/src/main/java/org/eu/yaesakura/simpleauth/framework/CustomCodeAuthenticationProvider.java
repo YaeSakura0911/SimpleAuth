@@ -47,7 +47,7 @@ public class CustomCodeAuthenticationProvider implements AuthenticationProvider 
         stringRedisTemplate.delete(emailOrPhone);
 
         CustomCodeAuthenticationToken result = CustomCodeAuthenticationToken.authenticated(userDetails, authentication.getCredentials(), userDetails.getAuthorities());
-        result.setDetails(authentication);
+        result.setDetails(authentication.getDetails());
 
         return result;
     }

@@ -4,9 +4,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /**
- * @author Cuifa03
- * @create 2023/12/25 11:12:49
- * @description 验证码工具类
+ * 验证码工具类
+ *
+ * @author YaeSakura
  */
 
 @Component

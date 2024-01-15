@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.eu.yaesakura.simpleauth.framework.CustomAuthenticationDetails;
 import org.eu.yaesakura.simpleauth.framework.CustomCodeAuthenticationToken;
 import org.eu.yaesakura.simpleauth.framework.domain.dto.CodeLoginDTO;
 import org.springframework.security.core.Authentication;
@@ -42,6 +43,7 @@ public class CustomCodeAuthenticationFilter extends AbstractAuthenticationProces
 
             String emailOrPhone = codeLoginDTO.getEmailOrPhone();
             String code = codeLoginDTO.getCode();
+            request.setAttribute("principal", emailOrPhone);
             request.setAttribute("remember", codeLoginDTO.getRemember());
 
             CustomCodeAuthenticationToken authRequest = CustomCodeAuthenticationToken.unauthenticated(emailOrPhone, code);

@@ -1,6 +1,5 @@
 package org.eu.yaesakura.simpleauth.framework.service.impl;
 
-import org.eu.yaesakura.simpleauth.framework.domain.entity.Permission;
 import org.eu.yaesakura.simpleauth.framework.domain.entity.RolePermission;
 import org.eu.yaesakura.simpleauth.framework.domain.entity.User;
 import org.eu.yaesakura.simpleauth.framework.domain.entity.UserRole;

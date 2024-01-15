@@ -1,24 +1,22 @@
 package org.eu.yaesakura.simpleauth.framework;
 
-import org.eu.yaesakura.simpleauth.framework.util.EmailUtil;
-import org.eu.yaesakura.simpleauth.framework.util.CodeUtil;
+import com.blueconic.browscap.ParseException;
+import org.eu.yaesakura.simpleauth.framework.util.BrowserUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+
+import java.io.IOException;
 
 @SpringBootTest
 public class FrameworkApplicationTest {
 
     @Autowired
-    private EmailUtil emailUtil;
-    @Autowired
-    private CodeUtil codeUtil;
+    private BrowserUtil browserUtil;
 
     @Test
     public void contextLoad() {
-        String code = codeUtil.generateCode();
-        String phoneNumber = "15277323166";
-
-        emailUtil.sendEmailCode("1454312923@qq.com", code);
+        System.out.println(browserUtil.getBrowser("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"));
+        System.out.println(browserUtil.getPlatform("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"));
     }
 }
