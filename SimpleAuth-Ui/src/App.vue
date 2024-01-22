@@ -3,7 +3,7 @@
 </script>
 
 <template>
-    <a-layout style="overflow: hidden">
+    <a-layout style="min-height: 100vh;overflow: hidden">
         <router-view v-slot="{ Component }">
             <Transition name="slide-fade" mode="out-in">
                 <component :is="Component" />

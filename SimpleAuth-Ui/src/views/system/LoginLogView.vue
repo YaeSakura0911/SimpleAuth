@@ -5,6 +5,8 @@ import dayjs from 'dayjs'
 import 'dayjs/locale/zh-cn'
 import {getLoginLogByPage} from "@/apis/log";
 import {message} from "ant-design-vue";
+import {SearchOutlined, ReloadOutlined} from "@ant-design/icons-vue";
+import PageHeaderComponent from "@/components/PageHeaderComponent.vue";
 
 dayjs.locale('zh-cn')
 
@@ -124,6 +126,17 @@ function handleTableChange(pagination) {
 
 <template>
     <a-layout>
+        <page-header-component>
+            <template #extra>
+                <a-space>
+                    <a-button>
+                        <ExportOutlined />
+                        导出
+                    </a-button>
+                </a-space>
+            </template>
+        </page-header-component>
+
         <a-layout-content style="margin: 24px; padding: 24px; background-color: #ffffff">
             <a-form :model="queryForm" :label-col="{ style: { width: '72px' } }">
                 <a-row :gutter="24">
@@ -152,16 +165,14 @@ function handleTableChange(pagination) {
                     </a-col>
                 </a-row>
                 <a-row>
-                    <a-col :span="12" style="text-align: left;">
+                    <a-col :span="24" style="text-align: right;">
                         <a-space>
-                            <a-button>导出</a-button>
-                            <a-button danger>删除</a-button>
-                        </a-space>
-                    </a-col>
-                    <a-col :span="12" style="text-align: right;">
-                        <a-space>
-                            <a-button type="primary" @click="handleSearch">搜索</a-button>
-                            <a-button @click="handleReset">重置</a-button>
+                            <a-button type="primary" @click="handleSearch">
+                                <search-outlined />搜索
+                            </a-button>
+                            <a-button @click="handleReset">
+                                <reload-outlined />重置
+                            </a-button>
                         </a-space>
                     </a-col>
                 </a-row>

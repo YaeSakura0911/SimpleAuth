@@ -1,35 +1,30 @@
 package org.eu.yaesakura.simpleauth.framework.controller;
 
 import org.eu.yaesakura.simpleauth.framework.domain.entity.User;
-import org.eu.yaesakura.simpleauth.framework.domain.vo.GetUserBySessionVo;
+import org.eu.yaesakura.simpleauth.framework.domain.vo.GetPermissionBySessionVo;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * 用户控制层
- *
  * @author YaeSakura
  */
 
 @RestController
-@RequestMapping("/user")
-public class UserController {
+@RequestMapping("/permission")
+public class PermissionController {
 
     /**
-     * 根据 Session 获取用户
+     * 根据Session获取权限信息
      * @param authentication 认证信息
+     * @return
      */
     @GetMapping
-    public GetUserBySessionVo getUserBySession(Authentication authentication) {
-
+    public GetPermissionBySessionVo getPermissionBySession(Authentication authentication) {
         User principal = (User) authentication.getPrincipal();
-
-        GetUserBySessionVo getUserBySessionVo = new GetUserBySessionVo();
-        getUserBySessionVo.setId(principal.getId());
-        getUserBySessionVo.setName(principal.getUsername());
-
-        return getUserBySessionVo;
+        GetPermissionBySessionVo getPermissionBySessionVo = new GetPermissionBySessionVo();
+        getPermissionBySessionVo.setPermissions(principal.getPermissionList());
+        return getPermissionBySessionVo;
     }
 }

@@ -20,6 +20,5 @@ public interface PermissionMapper {
      * @param permissionIdSet 权限ID集合
      * @return 包含权限的列表
      */
-    @Select("SELECT * FROM permission WHERE id IN #{permissionIdSet}")
     List<Permission> getPermissionsByPermissionIds(Set<Integer> permissionIdSet);
 }

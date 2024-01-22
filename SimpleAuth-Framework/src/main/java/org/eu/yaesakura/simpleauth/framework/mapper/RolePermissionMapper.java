@@ -19,6 +19,5 @@ public interface RolePermissionMapper {
      * @param roleIdList 角色ID列表
      * @return 包含角色权限关系的列表
      */
-    @Select("SELECT * FROM role_permission WHERE role_id IN (#{roleIdList})")
     List<RolePermission> getRolePermissionsByRoleIds(List<Integer> roleIdList);
 }

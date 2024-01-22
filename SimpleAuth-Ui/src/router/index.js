@@ -4,15 +4,10 @@ import ForgetView from "@/views/ForgetView.vue";
 import RegisterView from "@/views/RegisterView.vue";
 import IndexView from "@/views/IndexView.vue";
 import {useUserStore} from "@/stores/user";
-import {getUserBySession} from "@/apis/user";
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
     routes: [
-        {
-            path: '/',
-            redirect: '/home'
-        },
         {
             path: '/login',
             name: 'Login',
@@ -59,7 +54,7 @@ const router = createRouter({
             }
         },
         {
-            path: '/index',
+            path: '',
             name: 'Index',
             component: IndexView,
             meta: {
@@ -67,7 +62,7 @@ const router = createRouter({
             },
             children: [
                 {
-                    path: '/home',
+                    path: 'home',
                     name: 'Home',
                     component: () => import('@/views/HomeView.vue'),
                     meta: {
@@ -76,52 +71,71 @@ const router = createRouter({
                     }
                 },
                 {
-                    path: '/system',
+                    path: 'system',
                     name: 'System',
                     meta: {
-                        title: '系统设置'
+                        title: '系统设置',
+                        requireAuth: true
                     },
                     children: [
                         {
-                            path: '/user',
+                            path: 'user',
                             name: 'User',
-                            component: () => import('@/views/UserView.vue'),
+                            component: () => import('@/views/system/UserView.vue'),
                             meta: {
                                 title: '用户管理',
                                 requireAuth: true
                             }
                         },
                         {
-                            path: '/role',
+                            path: 'role',
                             name: 'Role',
-                            component: () => import('@/views/RoleView.vue'),
+                            component: () => import('@/views/system/RoleView.vue'),
                             meta: {
                                 title: '角色管理',
                                 requireAuth: true
                             }
                         },
                         {
-                            path: '/log',
-                            name: 'Log',
+                            path: 'permission',
+                            name: 'Permission',
                             meta: {
-                                title: '日志管理'
-                            },
+                                title: '权限管理',
+                                requireAuth: true
+                            }
+                        },
+                        {
+                            path: 'log',
+                            name: 'Log',
                             children: [
                                 {
-                                    path: '/login-log',
+                                    path: 'login-log',
                                     name: 'LoginLog',
-                                    component: () => import('@/views/LoginLogView.vue'),
+                                    component: () => import('@/views/system/LoginLogView.vue'),
                                     meta: {
                                         title: '登录日志',
                                         requireAuth: true
                                     }
                                 }
                             ]
-                        }
+                        },
                     ]
                 },
+
             ]
         },
+        // {
+        //     path: '/404',
+        //     name: '404',
+        //     component: () => import('@/views/NotFoundView.vue'),
+        //     meta: {
+        //         title: '404'
+        //     }
+        // },
+        // {
+        //     path: '/:pathMatch(.*)*',
+        //     redirect: '/404'
+        // },
     ]
 })
 
@@ -130,18 +144,14 @@ router.beforeEach(async (to, from) => {
 
     // 如果目的地需要认证
     if (to.meta.requireAuth) {
-        await getUserBySession().then(data => {
-            console.log(data)
-            user.$patch({
-                name: data.name,
-                permissions: data.permissions,
-                isAuthentication: true
-            })
-        })
+        // 获取用户信息
+        user.getUser()
+    }
 
-        if (!user.isAuthentication) {
-            return '/login'
-        }
+    // 如果不存在指定路由
+    if (!router.hasRoute(to.name)) {
+        // TODO: 生成动态路由
+        user.generateRoutes()
     }
 })
 

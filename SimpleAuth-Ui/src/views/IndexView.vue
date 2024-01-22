@@ -1,74 +1,63 @@
 <script setup>
-import {computed, h, onMounted, reactive, ref, watch} from "vue";
-import {useRouter, RouterLink, useRoute} from "vue-router";
+import {h, onBeforeMount, reactive, ref, resolveComponent} from "vue";
+import {useRouter, RouterLink} from "vue-router";
 import {logout} from "@/apis/authentication";
 import {message} from "ant-design-vue";
-import { BookOutlined, HomeOutlined, SettingOutlined, MenuUnfoldOutlined, MenuFoldOutlined, LogoutOutlined } from "@ant-design/icons-vue"
+import {useUserStore} from "@/stores/user";
+import {getPermissionBySession} from "@/apis/permission";
 
-const route = useRoute()
 const router = useRouter()
+const user = useUserStore()
 const collapsed = ref(false)
 const collapsedWidth = ref(80)
 const openKey = ref([])
 const selectedKey = ref([])
-const breadcrumb = ref({
-    routes: [],
-    itemRender: ({route}) => {
-        return h('span', route.breadcrumbName)
-    }
-})
-const menuItems = reactive([
+const sidebarMenu = ref([
     {
         key: 'home',
-        icon: () => h(HomeOutlined),
+        icon: () => h(resolveComponent('HomeOutlined')),
         label: h(RouterLink, {to: '/home'}, () => '主页'),
         title: '主页',
-    },
-    {
-        key: 'system',
-        icon: () => h(SettingOutlined),
-        label: '系统设置',
-        title: '系统设置',
-        children: [
-            {
-                key: 'user',
-                label: h(RouterLink, {to: '/user'}, () => '用户管理'),
-            },
-            {
-                key: 'role',
-                label: h(RouterLink, {to: '/role'}, () => '角色管理'),
-            },
-            {
-                key: 'permission',
-                label: h(RouterLink, {to: ''}, () => '权限管理'),
-            },
-            {
-                key: 'log',
-                label: '日志管理',
-                children: [
-                    {
-                        key: 'loginLog',
-                        label: h(RouterLink, {to: '/login-log'}, () => '登录日志'),
-                    },
-                ]
-            }
-        ]
     }
+    // {
+    //     key: 'system',
+    //     icon: () => h(resolveComponent('SettingOutlined')),
+    //     label: '系统设置',
+    //     title: '系统设置',
+    //     children: [
+    //         {
+    //             key: 'user',
+    //             label: h(RouterLink, {to: {name: 'User'}}, () => '用户管理'),
+    //         },
+    //         {
+    //             key: 'role',
+    //             label: h(RouterLink, {to: {name: 'Role'}}, () => '角色管理'),
+    //         },
+    //         {
+    //             key: 'permission',
+    //             label: h(RouterLink, {to: {name: 'Permission'}}, () => '权限管理'),
+    //         },
+    //         {
+    //             key: 'log',
+    //             label: '日志管理',
+    //             children: [
+    //                 {
+    //                     key: 'loginLog',
+    //                     label: h(RouterLink, {to: {name: 'LoginLog'}}, () => '登录日志'),
+    //                 },
+    //             ]
+    //         }
+    //     ]
+    // }
 ])
 
-/**
- * 监听路由变化
- */
-watch(() => route.matched, (newValue) => {
-    console.log(newValue)
-    breadcrumb.value.routes = []
-    for (let routeItem of newValue) {
-        // 如果路径为主页则不添加进面包屑
-        if (routeItem.path === '/home') {
-            continue
-        }
-        breadcrumb.value.routes.push({breadcrumbName: routeItem.meta.title})
-    }
+onBeforeMount(() => {
+    // 动态生成菜单
+    getPermissionBySession().then(resp => {
+        generateDynamicMenu(resp.data.permissions, null).forEach(dynamicMenu => {
+            sidebarMenu.value.push(dynamicMenu)
+        })
+    })
 })
 
 function handleMenuSelect(selectedItem) {
@@ -96,6 +85,34 @@ function handleLogout() {
         message.success('注销成功')
     })
 }
+
+/**
+ * 动态生成菜单
+ * @param dataArray 数据数组
+ * @param parent 父级ID
+ */
+function generateDynamicMenu(dataArray, parent = null) {
+    const result = [];
+
+    for (const data of dataArray) {
+        if (data.parent === parent) {
+            const menuItem = {
+                key: data.id,
+                icon: data.icon ? () => h(resolveComponent(data.icon)) : null,
+                label: data.component ? h(RouterLink, {to: {name: data.name}}, () => data.title) : data.title,
+                title: data.title,
+                children: generateDynamicMenu(dataArray, data.id)
+            };
+            result.push(menuItem);
+        }
+    }
+
+    if (result.length === 0) {
+        return null
+    } else {
+        return result;
+    }
+}
 </script>
 
 <template>
@@ -106,7 +123,7 @@ function handleLogout() {
                 <div></div>
             </div>
 
-            <a-menu theme="dark" mode="inline" :items="menuItems" :open-keys="openKey" :selected-keys="selectedKey" @openChange="handleMenuOpenChange" @select="handleMenuSelect"></a-menu>
+            <a-menu theme="dark" mode="inline" :items="sidebarMenu" :open-keys="openKey" :selected-keys="selectedKey" @openChange="handleMenuOpenChange" @select="handleMenuSelect"></a-menu>
         </a-layout-sider>
         <!-- 侧边栏菜单 结束 -->
 
@@ -115,23 +132,24 @@ function handleLogout() {
             <a-layout-header style="background-color: #fff; padding: 0">
                 <a-flex justify="space-between">
                     <div>
-                        <menu-unfold-outlined class="trigger" v-if="collapsed" @click="() => collapsed = !collapsed" />
-                        <menu-fold-outlined class="trigger" v-else @click="() => collapsed = !collapsed" />
+                        <MenuUnfoldOutlined class="trigger" v-if="collapsed" @click="() => collapsed = !collapsed" />
+                        <MenuFoldOutlined class="trigger" v-else @click="() => collapsed = !collapsed" />
                     </div>
 
                     <div>
                         <a-dropdown class="dropdown" :trigger="['click']">
                             <a-space>
-                                <a-avatar size="large">A</a-avatar>
-                                <a-typography-text type="secondary">Admin</a-typography-text>
+                                <a-avatar size="large">{{ user.name }}</a-avatar>
+                                <a-typography-text type="secondary">{{ user.name }}</a-typography-text>
                             </a-space>
 
                             <template #overlay>
                                 <a-menu>
                                     <a-menu-item>
-                                        <a @click="handleLogout">
-                                            <logout-outlined />
-                                            退出登录</a>
+                                        <a-typography-text style="text-align: center" @click="handleLogout">
+                                            <LogoutOutlined />
+                                            退出登录
+                                        </a-typography-text>
                                     </a-menu-item>
                                 </a-menu>
                             </template>
@@ -143,8 +161,6 @@ function handleLogout() {
 
             <!---->
             <a-layout-content>
-                <a-page-header :title="router.currentRoute.value.meta.title" :ghost="false" :breadcrumb="breadcrumb" />
-
                 <router-view />
             </a-layout-content>
             <!---->
