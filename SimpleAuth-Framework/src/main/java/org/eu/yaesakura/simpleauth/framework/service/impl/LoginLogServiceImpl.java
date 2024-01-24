@@ -55,7 +55,7 @@ public class LoginLogServiceImpl extends ServiceImpl<LoginLogMapper, LoginLog> i
         queryWrapper.orderByDesc(LoginLog::getTime);
         Page<LoginLog> page = page(new Page<>(dto.getCurrent(), dto.getPageSize()), queryWrapper);
 
-        PageResult<LoginLog> loginLogPageResult = new PageResult<>(dto.getCurrent(), dto.getPageSize(), page.getTotal());
+        PageResult<LoginLog> loginLogPageResult = new PageResult<>(dto.getCurrent(), dto.getPageSize(), (int) page.getTotal());
         loginLogPageResult.setData(page.getRecords());
 
         return loginLogPageResult;

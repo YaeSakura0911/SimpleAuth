@@ -29,6 +29,9 @@ public class UserController {
         GetUserBySessionVo getUserBySessionVo = new GetUserBySessionVo();
         getUserBySessionVo.setId(principal.getId());
         getUserBySessionVo.setName(principal.getUsername());
+        if (principal.getPermissionList() != null && !principal.getPermissionList().isEmpty()) {
+            getUserBySessionVo.setPermissions(principal.getPermissionList());
+        }
 
         return getUserBySessionVo;
     }

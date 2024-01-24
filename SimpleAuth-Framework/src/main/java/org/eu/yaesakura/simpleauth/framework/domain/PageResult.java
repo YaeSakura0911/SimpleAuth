@@ -11,15 +11,15 @@ import java.util.List;
 @Data
 public class PageResult<T> {
     // 当前页
-    private Long current;
+    private Integer current;
     // 分页大小
-    private Long pageSize;
+    private Integer pageSize;
     // 总条数
-    private Long total;
+    private Integer total;
     // 分页数据
     private List<T> data;
 
-    public PageResult (Long current, Long pageSize, Long total) {
+    public PageResult (Integer current, Integer pageSize, Integer total) {
         this.current = current;
         this.pageSize = pageSize;
         this.total = total;

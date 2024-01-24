@@ -13,9 +13,9 @@ import java.time.LocalDate;
 @Data
 public class QueryLoginLogDTO {
     // 当前页
-    private Long current;
+    private Integer current;
     // 分页大小
-    private Long pageSize;
+    private Integer pageSize;
     // 登录主体
     private String principal;
     // IP地址

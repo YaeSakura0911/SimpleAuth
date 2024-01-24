@@ -1,5 +1,5 @@
 <script setup>
-import {h, onBeforeMount, reactive, ref, resolveComponent} from "vue";
+import {h, onBeforeMount, ref, resolveComponent} from "vue";
 import {useRouter, RouterLink} from "vue-router";
 import {logout} from "@/apis/authentication";
 import {message} from "ant-design-vue";
@@ -8,10 +8,12 @@ import {getPermissionBySession} from "@/apis/permission";
 
 const router = useRouter()
 const user = useUserStore()
+// 侧边栏折叠状态
 const collapsed = ref(false)
 const collapsedWidth = ref(80)
 const openKey = ref([])
 const selectedKey = ref([])
+// 侧边栏导航菜单
 const sidebarMenu = ref([
     {
         key: 'home',
@@ -19,47 +21,17 @@ const sidebarMenu = ref([
         label: h(RouterLink, {to: '/home'}, () => '主页'),
         title: '主页',
     }
-    // {
-    //     key: 'system',
-    //     icon: () => h(resolveComponent('SettingOutlined')),
-    //     label: '系统设置',
-    //     title: '系统设置',
-    //     children: [
-    //         {
-    //             key: 'user',
-    //             label: h(RouterLink, {to: {name: 'User'}}, () => '用户管理'),
-    //         },
-    //         {
-    //             key: 'role',
-    //             label: h(RouterLink, {to: {name: 'Role'}}, () => '角色管理'),
-    //         },
-    //         {
-    //             key: 'permission',
-    //             label: h(RouterLink, {to: {name: 'Permission'}}, () => '权限管理'),
-    //         },
-    //         {
-    //             key: 'log',
-    //             label: '日志管理',
-    //             children: [
-    //                 {
-    //                     key: 'loginLog',
-    //                     label: h(RouterLink, {to: {name: 'LoginLog'}}, () => '登录日志'),
-    //                 },
-    //             ]
-    //         }
-    //     ]
-    // }
 ])
 
 onBeforeMount(() => {
     // 动态生成菜单
     getPermissionBySession().then(resp => {
-        generateDynamicMenu(resp.data.permissions, null).forEach(dynamicMenu => {
-            sidebarMenu.value.push(dynamicMenu)
-        })
+        sidebarMenu.value.push(...generateDynamicMenu(resp.data.permissions, null))
     })
+
 })
 
+// 处理菜单选择
 function handleMenuSelect(selectedItem) {
     // console.log(selectedItem)
     selectedKey.value = selectedItem.selectedKeys
@@ -70,6 +42,7 @@ function handleMenuOpenChange(openKeys) {
     openKey.value = openKeys
 }
 
+// 处理断点变化
 function handleBreakPoint(broken) {
     if (broken) {
         collapsedWidth.value = 0
@@ -89,28 +62,30 @@ function handleLogout() {
 /**
  * 动态生成菜单
  * @param dataArray 数据数组
- * @param parent 父级ID
+ * @param parentId 父级ID
+ * @param parentPath 父级路径
  */
-function generateDynamicMenu(dataArray, parent = null) {
-    const result = [];
+function generateDynamicMenu(dataArray, parentId = null, parentPath = '') {
+    const menu = [];
 
     for (const data of dataArray) {
-        if (data.parent === parent) {
+        let fullPath = parentPath + '/' + data.path
+        if (data.parent === parentId) {
             const menuItem = {
                 key: data.id,
                 icon: data.icon ? () => h(resolveComponent(data.icon)) : null,
-                label: data.component ? h(RouterLink, {to: {name: data.name}}, () => data.title) : data.title,
+                label: data.component ? h(RouterLink, {to: fullPath}, () => data.title) : data.title,
                 title: data.title,
-                children: generateDynamicMenu(dataArray, data.id)
+                children: generateDynamicMenu(dataArray, data.id, fullPath)
             };
-            result.push(menuItem);
+            menu.push(menuItem);
         }
     }
 
-    if (result.length === 0) {
+    if (menu.length === 0) {
         return null
     } else {
-        return result;
+        return menu;
     }
 }
 </script>
@@ -139,7 +114,7 @@ function generateDynamicMenu(dataArray, parent = null) {
                     <div>
                         <a-dropdown class="dropdown" :trigger="['click']">
                             <a-space>
-                                <a-avatar size="large">{{ user.name }}</a-avatar>
+                                <a-avatar size="large">{{ user.name.charAt(0).toUpperCase() }}</a-avatar>
                                 <a-typography-text type="secondary">{{ user.name }}</a-typography-text>
                             </a-space>
 
@@ -187,6 +162,7 @@ function generateDynamicMenu(dataArray, parent = null) {
 }
 
 .trigger {
+    display: block;
     font-size: 18px;
     line-height: 64px;
     padding: 0 24px;
@@ -194,7 +170,8 @@ function generateDynamicMenu(dataArray, parent = null) {
 }
 
 .trigger:hover {
-    color: #1890ff;
+    //color: #1890ff;
+    background-color: rgba(0, 0, 0, 0.06);
 }
 
 .dropdown {
