@@ -44,10 +44,13 @@ function handleMenuOpenChange(openKeys) {
 
 // 处理断点变化
 function handleBreakPoint(broken) {
+    console.log(broken)
     if (broken) {
+        collapsed.value = true
         collapsedWidth.value = 0
     }
     else {
+        collapsed.value = false
         collapsedWidth.value = 80
     }
 }

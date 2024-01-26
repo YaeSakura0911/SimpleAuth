@@ -3,7 +3,7 @@ import {onBeforeMount, reactive, ref} from "vue"
 import locale from 'ant-design-vue/es/date-picker/locale/zh_CN'
 import dayjs from 'dayjs'
 import 'dayjs/locale/zh-cn'
-import {getLoginLogByPage} from "@/apis/log";
+import {exportLoginLog, getLoginLogByPage} from "@/apis/log";
 import {message} from "ant-design-vue";
 import {SearchOutlined, ReloadOutlined} from "@ant-design/icons-vue";
 import PageHeaderComponent from "@/components/PageHeaderComponent.vue";
@@ -11,6 +11,7 @@ import PageHeaderComponent from "@/components/PageHeaderComponent.vue";
 dayjs.locale('zh-cn')
 
 const tableLoading = ref(false)
+const buttonLoading = ref(false)
 const columns = [
     {
         key: 'principal',
@@ -96,6 +97,21 @@ function initData() {
 }
 
 /**
+ * 导出登录日志
+ */
+function handleExport() {
+    buttonLoading.value = true
+    exportLoginLog({
+        principal: queryForm.principal,
+        ip: queryForm.ip,
+        status: queryForm.status,
+        dateRange: queryForm.dateRange
+    }).then(() => {
+        buttonLoading.value = false
+    })
+}
+
+/**
  * 根据条件搜索
  */
 function handleSearch() {
@@ -129,8 +145,8 @@ function handleTableChange(pagination) {
         <page-header-component>
             <template #extra>
                 <a-space>
-                    <a-button>
-                        <ExportOutlined />
+                    <a-button :loading="buttonLoading" @click="handleExport">
+                        <ExportOutlined/>
                         导出
                     </a-button>
                 </a-space>
@@ -140,17 +156,17 @@ function handleTableChange(pagination) {
         <a-layout-content style="margin: 24px; padding: 24px; background-color: #ffffff">
             <a-form :model="queryForm" :label-col="{ style: { width: '72px' } }">
                 <a-row :gutter="24">
-                    <a-col :xs="24" :xl="6">
+                    <a-col :xs="24" :sm="12" :md="12" :lg="12" :xl="8" :xxl="6">
                         <a-form-item label="登录主体">
-                            <a-input v-model:value="queryForm.principal" allow-clear />
+                            <a-input v-model:value="queryForm.principal" allow-clear/>
                         </a-form-item>
                     </a-col>
-                    <a-col :xs="24" :xl="6">
+                    <a-col :xs="24" :sm="12" :md="12" :lg="12" :xl="8" :xxl="6">
                         <a-form-item label="IP地址">
-                            <a-input v-model:value="queryForm.ip" allow-clear />
+                            <a-input v-model:value="queryForm.ip" allow-clear/>
                         </a-form-item>
                     </a-col>
-                    <a-col :xs="24" :xl="6">
+                    <a-col :xs="24" :sm="12" :md="12" :lg="12" :xl="8" :xxl="6">
                         <a-form-item label="登录状态">
                             <a-select v-model:value="queryForm.status" allow-clear>
                                 <a-select-option :value="true">登录成功</a-select-option>
@@ -158,9 +174,10 @@ function handleTableChange(pagination) {
                             </a-select>
                         </a-form-item>
                     </a-col>
-                    <a-col :xs="24" :xl="6">
+                    <a-col :xs="24" :sm="12" :md="12" :lg="12" :xl="8" :xxl="6">
                         <a-form-item label="登录日期">
-                            <a-range-picker v-model:value="queryForm.dateRange" :locale="locale" value-format="YYYY-MM-DD" allow-clear />
+                            <a-range-picker v-model:value="queryForm.dateRange" :locale="locale"
+                                            value-format="YYYY-MM-DD" allow-clear/>
                         </a-form-item>
                     </a-col>
                 </a-row>
@@ -168,19 +185,22 @@ function handleTableChange(pagination) {
                     <a-col :span="24" style="text-align: right;">
                         <a-space>
                             <a-button type="primary" @click="handleSearch">
-                                <search-outlined />搜索
+                                <search-outlined/>
+                                搜索
                             </a-button>
                             <a-button @click="handleReset">
-                                <reload-outlined />重置
+                                <reload-outlined/>
+                                重置
                             </a-button>
                         </a-space>
                     </a-col>
                 </a-row>
             </a-form>
 
-            <br />
+            <br/>
 
-            <a-table :columns="columns" :data-source="dataSource" :pagination="pagination" :loading="tableLoading" :scroll="{ x: 'max-content' }" @change="handleTableChange">
+            <a-table :columns="columns" :data-source="dataSource" :pagination="pagination" :loading="tableLoading"
+                     :scroll="{ x: 'max-content' }" @change="handleTableChange">
                 <template #bodyCell="{column, record}">
                     <template v-if="column.key === 'status'">
                         <a-tag color="success" v-if="record.status">登录成功</a-tag>

@@ -21,6 +21,13 @@ request.interceptors.request.use(config => {
  * 配置响应拦截器
  */
 request.interceptors.response.use(response => {
+    console.log('response', response);
+
+    // 如果返回的是二进制数据，则直接返回
+    // if (response.request.responseType === 'blob') {
+    //     return response
+    // }
+
     return response.data
 }, error => {
     switch (error.response.status) {
